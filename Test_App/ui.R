@@ -6,11 +6,15 @@ library(shiny)
 shinyUI(fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Shiny File Upload Example"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
+            fileInput("file","Upload the file"),
+            h5("Max file size: 5MB"),
+            radioButtons("sep", "Separator", choices = c(Comma = ",", Period =".", Minus ="-")),
+            checkboxInput("header","Header?"),
             sliderInput("bins",
                         "Number of bins:",
                         min = 1,
@@ -20,7 +24,9 @@ shinyUI(fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-            plotOutput("distPlot")
+            plotOutput("distPlot"),
+            tableOutput("inputfile")
         )
     )
 ))
+
