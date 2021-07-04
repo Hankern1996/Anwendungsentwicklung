@@ -41,6 +41,16 @@ shinyUI(navbarPage(title = "eLectrify",
                    # ----------------------------------
                    # tab panel 3 - Location Comparison
                    tabPanel("Analysen",
+                            sidebarLayout(
+                              sidebarPanel(h3("Inbetriebnahme von Ladepunkten pro Bundesland"),
+                                           selectizeInput("country", "Wähle Bundesland", choices = NULL)),
+                              
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Barplot", plotlyOutput("barplot")),
+                                            tabPanel("Data", tableOutput("datahead"))),
+                              )
+                            )
                             #propertyComparison()
                    ),
                    

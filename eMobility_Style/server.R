@@ -10,17 +10,38 @@
 library(shiny)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+    
+    
+    allData <- read_excel("/Users/paulinawittich/Desktop/Hochschule\ Aalen/Business\ Analytics\ Anwendungsentwicklung/Ladesaeulenkarte.xlsx", 
+                          col_types = c("text", "text", "text", 
+                                        "text", "numeric", "numeric", "date", 
+                                        "numeric", "text", "numeric", "text", 
+                                        "numeric", "text", "numeric", "text", 
+                                        "numeric", "text", "numeric", "text", 
+                                        "text"))
+    
+    allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
+    allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
 
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+    data = reactive({
+        d = allData %>%
+            filter(Bundesland == input$country) %>%
+            group_by(year, Ladeeinrichtung) %>%
+            summarise(total=sum(Ladepunkte))
+    })
+    
+    
+    countries = sort(unique(allData$Bundesland))
+    
+    updateSelectInput(session, "country", choices=countries, selected="Sachsen")
+    
+    output$barplot <- renderPlotly({
+        plot_ly(data = data(),x=~year,y=~total,name =~Ladeeinrichtung, type="bar")
+    })
+    
+    output$datahead <- renderTable({
+        data()
     })
 
 })
