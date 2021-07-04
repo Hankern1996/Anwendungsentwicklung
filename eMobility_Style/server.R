@@ -13,7 +13,7 @@ library(shiny)
 shinyServer(function(input, output, session) {
     
     
-    allData <- read_excel("/Users/paulinawittich/Desktop/Hochschule\ Aalen/Business\ Analytics\ Anwendungsentwicklung/Ladesaeulenkarte.xlsx", 
+    allData <- read_excel("Ladesaeulenkarte.xlsx", 
                           col_types = c("text", "text", "text", 
                                         "text", "numeric", "numeric", "date", 
                                         "numeric", "text", "numeric", "text", 
