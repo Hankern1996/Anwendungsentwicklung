@@ -38,9 +38,7 @@ shinyServer(function(input, output, session) {
     
     
     allData_Map <- allData[5:6]
-    
-<<<<<<< HEAD
-=======
+
     output$map <- renderLeaflet({
         leaflet(allData_Map) %>%
         addTiles() %>% 
@@ -50,8 +48,7 @@ shinyServer(function(input, output, session) {
     
     
     
->>>>>>> db1539462ec9605bd757972a8cf87220f71fa440
-    
+
     
     
     
