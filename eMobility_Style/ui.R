@@ -43,9 +43,9 @@ shinyUI(navbarPage(title = "eLectrify",
                                            selectizeInput("year", "Wähle ein Jahr", choices = NULL)),
                               
                               mainPanel(
-                                tabsetPanel(type = "tabs",
+                                
                                             leafletOutput("map")                                         
-                              )
+                              
                             )
                             
                             
@@ -55,7 +55,7 @@ shinyUI(navbarPage(title = "eLectrify",
                    # tab panel 3 - Analysen
                    tabPanel("Analysen",
                             sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
+                              sidebarPanel(h3("Inbetriebnahme von Ladepunkten pro Bundesland"),
                                            selectizeInput("country", "Wähle Bundesland", choices = NULL)),
                               
                               mainPanel(
@@ -63,21 +63,8 @@ shinyUI(navbarPage(title = "eLectrify",
                                             tabPanel("Barplot", plotlyOutput("barplot")),
                                             tabPanel("Data", tableOutput("datahead"))),
                               )
-                            ),
-                            
-                            sidebarLayout(
-                              sidebarPanel(h4("Top 10 Städte"),
-                                           selectInput("checkYear", "Wähle Jahr", choices = NULL)
-                              ),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot1")),
-                                            tabPanel("Data", tableOutput("datahead1"))),
-                              )
                             )
                             #propertyComparison()
-                            
                    ),
                    
                    # ----------------------------------

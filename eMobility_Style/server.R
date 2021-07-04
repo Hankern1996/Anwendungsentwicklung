@@ -39,6 +39,20 @@ shinyServer(function(input, output, session) {
     
     allData_Map <- allData[5:6]
     
+<<<<<<< HEAD
+=======
+    output$map <- renderLeaflet({
+        leaflet(allData_Map) %>%
+        addTiles() %>% 
+        addCircles(~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+                   color="#ffa500", stroke = TRUE, fillOpacity = 0.8) 
+    })
+    
+    
+    
+>>>>>>> db1539462ec9605bd757972a8cf87220f71fa440
+    
+    
     
     
     data_year = reactive({
