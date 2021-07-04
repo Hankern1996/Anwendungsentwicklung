@@ -36,10 +36,13 @@ shinyServer(function(input, output, session) {
     allData_Map <- allData[5:6]
     
     output$map <- renderLeaflet({
-        leaflet() %>%
-            addTiles() %>%
-            setView(lng = 9.183333, lat = 48.783333, zoom = 10)
+        leaflet(allData_Map) %>%
+        addTiles() %>% 
+        addCircles(~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+                   color="#ffa500", stroke = TRUE, fillOpacity = 0.8) 
     })
+    
+    
     
     
     
