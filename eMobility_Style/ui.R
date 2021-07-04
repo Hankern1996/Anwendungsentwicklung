@@ -1,0 +1,64 @@
+#
+# This is the user-interface definition of a Shiny web application. You can
+# run the application by clicking 'Run App' above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+
+library(shiny)
+
+# Define UI for application that draws a histogram
+shinyUI(navbarPage(title = "eLectrify",
+                   theme = "style/style.css",
+                   footer = includeHTML("footer.html"),
+                   fluid = TRUE, 
+                   collapsible = TRUE,
+                   
+                   # ----------------------------------
+                   # tab panel 1 - Home
+                   tabPanel("Home",
+                            includeHTML("home.html"),
+                            tags$script(src = "plugins/scripts.js"),
+                            tags$head(
+                                tags$link(rel = "stylesheet", 
+                                          type = "text/css", 
+                                          href = "plugins/font-awesome-4.7.0/css/font-awesome.min.css"),
+                                tags$link(rel = "icon", 
+                                          type = "image/png", 
+                                          href = "images/logo_icon_e.png")
+                            )
+                   ),
+                   
+                   # ----------------------------------
+                   # tab panel 2 - Neighborhood Browser
+                   tabPanel("Ladesäulenkarte",
+                            #neighborhoodDescription(),
+                            includeHTML("scrollToTop.html")
+                   ),
+                   
+                   # ----------------------------------
+                   # tab panel 3 - Location Comparison
+                   tabPanel("Analysen",
+                            #propertyComparison()
+                   ),
+                   
+                   # ----------------------------------
+                   # tab panel 4 - About
+                   tabPanel("Fahrzeugzulassungen",
+                            includeHTML("about.html"),
+                            shinyjs::useShinyjs(),
+                            tags$head(
+                                tags$link(rel = "stylesheet", 
+                                          type = "text/css", 
+                                          href = "plugins/carousel.css"),
+                                tags$script(src = "plugins/holder.js")
+                            ),
+                            tags$style(type="text/css",
+                                       ".shiny-output-error { visibility: hidden; }",
+                                       ".shiny-output-error:before { visibility: hidden; }"
+                            )
+                   )
+                   
+))
