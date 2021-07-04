@@ -36,18 +36,23 @@ shinyUI(navbarPage(title = "eLectrify",
                    # ----------------------------------
                    # tab panel 2 - Ladesäulenkarte
                    tabPanel("Ladesäulenkarte",
-                            #neighborhoodDescription(),
                             includeHTML("scrollToTop.html"),
                             
-                            m <- leaflet(allData) %>% ## Add empty leaflet frame (map widget)
-                              addTiles() %>%  # Add default OpenStreetMap map tiles
-                              addMarkers(lng=7.84505099, lat=47.9934184, popup="Werthmannstraße 4, CIP-Pool"),
-                            m  # Print the map
+                            sidebarLayout(
+                              sidebarPanel(h3("Inbetriebnahme von Ladepunkten pro Jahr"),
+                                           selectizeInput("year", "Wähle ein Jahr", choices = NULL)),
+                              
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            leafletOutput("map")                                         
+                              )
+                            )
                             
-                   ),
+                            
+                   )),
                    
                    # ----------------------------------
-                   # tab panel 3 - Location Comparison
+                   # tab panel 3 - Analysen
                    tabPanel("Analysen",
                             sidebarLayout(
                               sidebarPanel(h3("Inbetriebnahme von Ladepunkten pro Bundesland"),
