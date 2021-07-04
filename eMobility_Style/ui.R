@@ -44,7 +44,7 @@ shinyUI(navbarPage(title = "eLectrify",
                               
                               mainPanel(
                                 tabsetPanel(type = "tabs",
-                                            leafletOutput("map", width = "100%", height = "100%")                                         
+                                            leafletOutput("map")                                         
                               )
                             )
                             

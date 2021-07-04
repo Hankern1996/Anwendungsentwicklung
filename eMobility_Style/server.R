@@ -52,11 +52,14 @@ shinyServer(function(input, output, session) {
     
     updateSelectInput(session, "year", choices=years, selected="2008")
     
+    m <- leaflet(df) %>% addTiles()
+    m %>% addCircleMarkers(radius = ~size, color = ~color)
+    
     output$map <- renderLeaflet({
-        leaflet(data = data_year(), lng = ~lat, lat = ~long) %>%
+        leaflet(datayear()) %>%
             addTiles() %>%
             setView(lng = 9.183333, lat = 48.783333, zoom = 10)
-            addMarker(lng = ~Längengrad, lat = ~Breitengrad)
+            addMarkers()
     })
     
     
