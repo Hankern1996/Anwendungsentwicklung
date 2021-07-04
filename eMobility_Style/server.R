@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
     
    
     
-#Analye_pro_Bundesland    
+#Analyse_pro_Bundesland    
 
     data = reactive({
         d = allData %>%
@@ -87,6 +87,38 @@ shinyServer(function(input, output, session) {
     output$datahead <- renderTable({
         data()
     })
+    
+    # Graphen zu Top 10 Städte Deutschland
+    
+    
+    data1 = reactive({
+      d = allData %>%
+        filter(year <= input$checkYear) %>%
+        group_by(Ort) %>%
+        summarise(total1=sum(Ladepunkte)) %>%
+        arrange(desc(total1)) %>%
+        slice(1:10)
+    })
+    
+    #yform <- list(categoryorder = "array",
+    #             categoryarray = as.vector(data1()))
+    
+    
+    year = sort(unique(allData$year))
+    
+    #my_list[names(my_list) != "b"]  
+    
+    updateSelectInput(session, "checkYear", choices=year[-1], selected="2020")
+    
+    output$barplot1 <- renderPlotly({
+      plot_ly(data = data1(),y=~Ort,x=~total1, type="bar",  orientation = 'h' ) #%>% 
+      #layout(yaxis = yform)
+    })
+    
+    output$datahead1 <- renderTable({
+      data2()
+    })
+    
     
     
         
