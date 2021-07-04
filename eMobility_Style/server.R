@@ -53,7 +53,7 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "year", choices=years, selected="2008")
     
     output$map <- renderLeaflet({
-        leaflet(data = data_year, lng = ~lat, lat = ~long) %>%
+        leaflet(data = data_year(), lng = ~lat, lat = ~long) %>%
             addTiles() %>%
             setView(lng = 9.183333, lat = 48.783333, zoom = 10)
             addMarker(lng = ~Längengrad, lat = ~Breitengrad)
