@@ -36,11 +36,9 @@ shinyServer(function(input, output, session) {
     allData_Map <- allData[5:6]
     
     output$map <- renderLeaflet({
-        leaflet(allData) %>%
-            addProviderTiles(providers$Stamen.TonerLite,
-                             options = providerTileOptions(noWrap = TRUE)
-            ) %>%
-            addMarkers(allData$Breitengrad, allData$Längengrad)
+        leaflet() %>%
+            addTiles() %>%
+            setView(lng = 9.183333, lat = 48.783333, zoom = 10)
     })
     
     
