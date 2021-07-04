@@ -8,6 +8,8 @@
 #
 
 library(shiny)
+library(plotly)
+library(leaflet)
 
 # Define UI for application that draws a histogram
 shinyUI(navbarPage(title = "eLectrify",
@@ -32,10 +34,16 @@ shinyUI(navbarPage(title = "eLectrify",
                    ),
                    
                    # ----------------------------------
-                   # tab panel 2 - Neighborhood Browser
+                   # tab panel 2 - Ladesäulenkarte
                    tabPanel("Ladesäulenkarte",
                             #neighborhoodDescription(),
-                            includeHTML("scrollToTop.html")
+                            includeHTML("scrollToTop.html"),
+                            
+                            m <- leaflet(allData) %>% ## Add empty leaflet frame (map widget)
+                              addTiles() %>%  # Add default OpenStreetMap map tiles
+                              addMarkers(lng=7.84505099, lat=47.9934184, popup="Werthmannstraße 4, CIP-Pool"),
+                            m  # Print the map
+                            
                    ),
                    
                    # ----------------------------------
