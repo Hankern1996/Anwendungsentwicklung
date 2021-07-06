@@ -30,30 +30,35 @@ shinyServer(function(input, output, session) {
   allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
   
   #Ladesäulenkarte    
+  allData_Map <- allData[5:9]
   
-  
-  
-  allData_Map <- allData[5:6]
-  
-  output$map <- renderLeaflet({
-    leaflet(allData_Map) %>%
-      addTiles() %>% 
-      addCircles(~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                 color="#ffa500", stroke = TRUE, fillOpacity = 0.8) 
-  })
-  
-  
-  data_year = reactive({
-    
-    a = allData %<%
-      filter(Jahr == input$year)
-    group_by(year, Ladeeinreichtung)%<%
+  data0 = reactive({
+    d0 = allData %>%
+      filter(Bundesland == input$Jahr) %>%
+      group_by(year, Ladeeinrichtung) %>%
       summarise(total=sum(Ladepunkte))
   })
   
   years = sort(unique(allData$year))
-  updateSelectInput(session, "year", choices=years, selected="2008")
+  updateSelectInput(session, "Jahr", choices=years, selected="2008")
+
+  # If you want to use predefined palettes in the RColorBrewer package:
+  # Call RColorBrewer::display.brewer.all() to see all possible palettes
+  pal <- colorFactor(
+    palette = c('red', 'blue'),
+    domain = allData_Map$Ladeeinrichtung
+  )
   
+  
+  output$map <- renderLeaflet({
+    leaflet(allData_Map) %>%
+      addTiles() %>% 
+      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+                 color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+    
+  })
+
+
   
   #Analyse_pro_Bundesland    
   
