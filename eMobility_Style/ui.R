@@ -36,7 +36,9 @@ shinyUI(navbarPage(title = "eLectrify",
                    # ----------------------------------
                    # tab panel 2 - Ladesäulenkarte
                    tabPanel("Ladesäulenkarte",
-                            includeHTML("scrollToTop.html"),
+                            #includeHTML("scrollToTop.html"),
+                            
+                            
                             
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
@@ -54,6 +56,14 @@ shinyUI(navbarPage(title = "eLectrify",
                    # ----------------------------------
                    # tab panel 3 - Analysen
                    tabPanel("Analysen",
+                        
+                            sidebarLayout(
+                              sidebarPanel(),
+                              mainPanel(
+                                imageOutput("animatedplot")
+                              )
+                            ),
+                            
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
                                            selectizeInput("country", "Wähle Bundesland", choices = NULL)),
