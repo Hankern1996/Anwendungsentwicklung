@@ -40,7 +40,7 @@ shinyUI(navbarPage(title = "eLectrify",
                             
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
-                                           selectizeInput("year", "Wähle ein Jahr", choices = NULL)),
+                                           selectizeInput("Jahr", "Wähle ein Jahr", choices = NULL)),
                               
                               mainPanel(
     
