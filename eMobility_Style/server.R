@@ -33,6 +33,8 @@ shinyServer(function(input, output, session) {
   allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
   
+  list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
+  
   #Ladesäulenkarte    
   
   
@@ -112,6 +114,8 @@ shinyServer(function(input, output, session) {
     data1()
   })
   
+  # Preparation of data for animation of cities
+  
   data2 <- allData %>%
     group_by(year, Ort) %>%
     summarise(total2 = sum(Ladepunkte)) %>%
@@ -132,70 +136,151 @@ shinyServer(function(input, output, session) {
     group_by(Ort) %>%
     filter(rank <=10) 
   
+  data3 <- allData %>%
+    group_by(year, Bundesland) %>%
+    summarise(total2 = sum(Ladepunkte)) %>%
+    arrange(desc(total2)) %>%
+    slice(1:10)
   
-  #animate(anim, 200, fps = 20,  width = 1200, height = 1000, 
-   #       renderer = ffmpeg_renderer()) -> for_mp4
+  data3 <- data3 %>%
+    filter(year<2020)
   
-  #anim_save("animation.mp4", animation = for_mp4 )
+  data3 <- data3  %>%
+    filter(year>2014)
+  
+  data3a <- data3 %>%
+    # The * 1 makes it possible to have non-integer ranks while sliding
+    mutate(rank = rank(-total2),
+           Value_rel = total2/total2[rank==1],
+           Value_lbl = paste("",total2)) %>%
+    group_by(Bundesland) %>%
+    filter(rank <=10)
   
   
-    #animate(anim, 200, fps = 20,  width = 1200, height = 1000, 
-     #              renderer = gifski_renderer("gganim.gif"), end_pause = 15, start_pause =  15)
+  updateSelectInput(session, "animation_option", choices=list_choices, selected="Top 10 Städte")
+  
+  animation_option <- eventReactive(input$run_button,input$animation_option)
 
-  output$animatedplot <- renderImage({
-    # A temp file to save the output.
-    # This file will be removed later by renderImage
-    outfile <- tempfile(fileext=".gif")
-    
-    # now make the animation
-    p = ggplot(data2a, aes(rank, group = Ort, 
-                           fill = as.factor(Ort), color = as.factor(Ort))) +
-      geom_tile(aes(y = total2/2,
-                    height = total2,
-                    width = 0.9), alpha = 0.8, color = NA) +
-      geom_text(aes(y = 0, label = paste(Ort, " ")), vjust = 0.2, hjust = 1) +
-      geom_text(aes(y=total2,label = Value_lbl, hjust=0)) +
-      coord_flip(clip = "off", expand = FALSE) +
-      scale_y_continuous(labels = scales::comma) +
-      scale_x_reverse() +
-      guides(color = "none", fill = "none") +
-      theme(axis.line=element_blank(),
-            axis.text.x=element_blank(),
-            axis.text.y=element_blank(),
-            axis.ticks=element_blank(),
-            axis.title.x=element_blank(),
-            axis.title.y=element_blank(),
-            legend.position="none",
-            panel.background=element_blank(),
-            panel.border=element_blank(),
-            panel.grid.major=element_blank(),
-            panel.grid.minor=element_blank(),
-            panel.grid.major.x = element_line( size=.1, color="grey" ),
-            panel.grid.minor.x = element_line( size=.1, color="grey" ),
-            plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
-            plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
-            plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
-            plot.background=element_blank(),
-            plot.margin = margin(2,2, 2, 4, "cm")) +
-      transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
-      view_follow(fixed_x = TRUE)  +
-      labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-           subtitle  =  "Top 10 Länder",
-           caption  = "Anzahl der Ladepunkte (summiert)")
-    
-    anim_save("outfile.gif", animate(p)) # New
-    
-    # Return a list containing the filename
-    list(src = "outfile.gif",
-         contentType = 'image/gif'
-         # width = 400,
-         # height = 300,
-         # alt = "This is alternate text"
-    )}, 
-    deleteFile = TRUE)
+  #animation_option <- eventReactive(input$run_button,input$animation_option)
+
+  observeEvent(input$run_button,{
   
-  #animate(anim, 200, fps = 20,  width = 1200, height = 1000, 
-  #        renderer = gifski_renderer("gganim.gif"), end_pause = 15, start_pause =  15)
+    if (input$animation_option == "Top 10 Städte") {
+      
+      output$animatedplot <- renderImage({
+        # A temp file to save the output.
+        # This file will be removed later by renderImage
+        outfile <- tempfile(fileext=".gif")
+        
+        # now make the animation
+        p = ggplot(data2a, aes(rank, group = Ort, 
+                               fill = as.factor(Ort), color = as.factor(Ort))) +
+          geom_tile(aes(y = total2/2,
+                        height = total2,
+                        width = 0.9), alpha = 0.8, color = NA) +
+          geom_text(aes(y = 0, label = paste(Ort, " ")), vjust = 0.2, hjust = 1) +
+          geom_text(aes(y=total2,label = Value_lbl, hjust=0)) +
+          coord_flip(clip = "off", expand = FALSE) +
+          scale_y_continuous(labels = scales::comma) +
+          scale_x_reverse() +
+          guides(color = "none", fill = "none") +
+          theme(axis.line=element_blank(),
+                axis.text.x=element_blank(),
+                axis.text.y=element_blank(),
+                axis.ticks=element_blank(),
+                axis.title.x=element_blank(),
+                axis.title.y=element_blank(),
+                legend.position="none",
+                panel.background=element_blank(),
+                panel.border=element_blank(),
+                panel.grid.major=element_blank(),
+                panel.grid.minor=element_blank(),
+                panel.grid.major.x = element_line( size=.1, color="grey" ),
+                panel.grid.minor.x = element_line( size=.1, color="grey" ),
+                plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+                plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+                plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+                plot.background=element_blank(),
+                plot.margin = margin(2,2, 2, 4, "cm")) +
+          transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
+          view_follow(fixed_x = TRUE)  +
+          labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
+               subtitle  =  "Top 10 Länder",
+               caption  = "Anzahl der Ladepunkte (summiert)")
+        
+        anim_save("outfile.gif", animate(p)) # New
+        
+        # Return a list containing the filename
+        list(src = "outfile.gif",
+             contentType = 'image/gif'
+             # width = 400,
+             # height = 300,
+             # alt = "This is alternate text"
+        )}, 
+        deleteFile = TRUE) 
+      
+  }
+    else {
+      output$animatedplot <- renderImage({
+        # A temp file to save the output.
+        # This file will be removed later by renderImage
+        outfile <- tempfile(fileext=".gif")
+        
+        # now make the animation
+        p = ggplot(data3a, aes(rank, group = Bundesland, 
+                               fill = as.factor(Bundesland), color = as.factor(Bundesland))) +
+          geom_tile(aes(y = total2/2,
+                        height = total2,
+                        width = 0.9), alpha = 0.8, color = NA) +
+          geom_text(aes(y = 0, label = paste(Bundesland, " ")), vjust = 0.2, hjust = 1) +
+          geom_text(aes(y=total2,label = Value_lbl, hjust=0)) +
+          coord_flip(clip = "off", expand = FALSE) +
+          scale_y_continuous(labels = scales::comma) +
+          scale_x_reverse() +
+          guides(color = "none", fill = "none") +
+          theme(axis.line=element_blank(),
+                axis.text.x=element_blank(),
+                axis.text.y=element_blank(),
+                axis.ticks=element_blank(),
+                axis.title.x=element_blank(),
+                axis.title.y=element_blank(),
+                legend.position="none",
+                panel.background=element_blank(),
+                panel.border=element_blank(),
+                panel.grid.major=element_blank(),
+                panel.grid.minor=element_blank(),
+                panel.grid.major.x = element_line( size=.1, color="grey" ),
+                panel.grid.minor.x = element_line( size=.1, color="grey" ),
+                plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+                plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+                plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+                plot.background=element_blank(),
+                plot.margin = margin(2,2, 2, 4, "cm")) +
+          transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
+          view_follow(fixed_x = TRUE)  +
+          labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
+               subtitle  =  "Top 10 Bundesländer",
+               caption  = "Anzahl der Ladepunkte (summiert)")
+        
+        anim_save("outfile.gif", animate(p)) # New
+        
+        # Return a list containing the filename
+        list(src = "outfile.gif",
+             contentType = 'image/gif'
+             # width = 400,
+             # height = 300,
+             # alt = "This is alternate text"
+        )}, 
+        deleteFile = TRUE) 
+    }
+    })
+  
+  
+  #Animation of plot
+
+  
+  
+  
 
   
 })
