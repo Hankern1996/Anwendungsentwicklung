@@ -202,8 +202,8 @@ shinyServer(function(input, output, session) {
                 panel.grid.minor=element_blank(),
                 panel.grid.major.x = element_line( size=.1, color="grey" ),
                 panel.grid.minor.x = element_line( size=.1, color="grey" ),
-                plot.title=element_text(size=23, hjust=0.5, face="bold", colour="grey", vjust=-1),
-                plot.subtitle=element_text(size=16, hjust=0.5, face="italic", color="grey"),
+                plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+                plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
                 plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
                 plot.background=element_blank(),
                 plot.margin = margin(2,2, 2, 4, "cm")) +
