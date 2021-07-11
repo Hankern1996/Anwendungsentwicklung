@@ -10,6 +10,7 @@
 library(shiny)
 library(plotly)
 library(leaflet)
+library(shinycssloaders)
 
 # Define UI for application that draws a histogram
 shinyUI(navbarPage(title = "eLectrify",
@@ -36,7 +37,9 @@ shinyUI(navbarPage(title = "eLectrify",
                    # ----------------------------------
                    # tab panel 2 - Ladesäulenkarte
                    tabPanel("Ladesäulenkarte",
-                            includeHTML("scrollToTop.html"),
+                            #includeHTML("scrollToTop.html"),
+                            
+                            
                             
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
@@ -51,37 +54,22 @@ shinyUI(navbarPage(title = "eLectrify",
                             
                    )),
                    
-                   # ----------------------------------
-                   # tab panel 3 - Analysen
-                   tabPanel("Analysen",
+                   
+                   # tab panel 4 - About
+                   tabPanel("Animationen",
+                            
                             sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
-                                           selectizeInput("country", "Wähle Bundesland", choices = NULL)),
-                              
+                              sidebarPanel(
+                                selectInput("animation_option","Animation Options",choices=NULL),
+                                actionButton("run_button","Berechnen",icon=icon("play"))
+                              ),
                               mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot")),
-                                            tabPanel("Data", tableOutput("datahead"))),
+                                #textOutput("test")
+                                withSpinner(imageOutput("animatedplot"))
+                                #imageOutput("animatedplot2")
                               )
                             ),
                             
-                            sidebarLayout(
-                              sidebarPanel(h4("Top 10 Städte"),
-                                           selectInput("checkYear", "Wähle Jahr", choices = NULL)
-                              ),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot1")),
-                                            tabPanel("Data", tableOutput("datahead1"))),
-                              )
-                            )
-                            #propertyComparison()
-                   ),
-                   
-                   # ----------------------------------
-                   # tab panel 4 - About
-                   tabPanel("Fahrzeugzulassungen",
                             includeHTML("about.html"),
                             shinyjs::useShinyjs(),
                             tags$head(
