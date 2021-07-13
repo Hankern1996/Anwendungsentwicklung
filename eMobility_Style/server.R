@@ -31,19 +31,20 @@ shinyServer(function(input, output, session) {
   
   #Ladesäulenkarte    
   allData_Map <- allData[5:9]
+  allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
-  data0 = reactive({
-    d0 = allData %>%
-      filter(Bundesland == input$Jahr) %>%
-      group_by(year, Ladeeinrichtung) %>%
-      summarise(total=sum(Ladepunkte))
+  
+  data0 <-reactive({
+    allData_Map %>%
+      filter(Jahr == input$Jahr) %>%
+      summarise(total=(allData_Map$Ladeeinrichtung))
   })
   
-  years = sort(unique(allData$year))
+  years = sort(unique(allData_Map$year))
+  
   updateSelectInput(session, "Jahr", choices=years, selected="2008")
 
-  # If you want to use predefined palettes in the RColorBrewer package:
-  # Call RColorBrewer::display.brewer.all() to see all possible palettes
+
   pal <- colorFactor(
     palette = c('red', 'blue'),
     domain = allData_Map$Ladeeinrichtung
@@ -52,11 +53,41 @@ shinyServer(function(input, output, session) {
   
   output$map <- renderLeaflet({
     leaflet(allData_Map) %>%
-      addTiles() %>% 
-      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                 color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+      addTiles() 
+
+  })
+  
+  observe({
+    
+    leafletProxy("map", data = data0()) %>%
+      clearShapes() %>% 
+      clearPopups() %>% 
+      clearMarkers() %>%
+      addCircles(~allData_Map$Längengrad, 
+                 ~allData_Map$Breitengrad,
+                 radius = 40, 
+                 weight = 3, 
+                 color=~pal(allData_Map$Ladeeinrichtung), 
+                 fillOpacity = 0.8
+      ) %>%
+      addProviderTiles("Stamen.Toner") 
+    
+    #addMarkers(
+    #   lng = ~Longitude, # note the tildes before values, required
+    #   lat = ~Latitude,
+    #   popup = ~paste(
+    #      Institution,
+    #      "<br>",
+    #      "Overall Satisfaction:",
+    #      Sat_2016,
+    #      "<br>"
+    #   )
+    #)
     
   })
+  
+  
+  
 
 
   
