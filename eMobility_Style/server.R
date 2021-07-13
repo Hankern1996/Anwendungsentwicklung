@@ -36,8 +36,7 @@ shinyServer(function(input, output, session) {
   
   data0 <-reactive({
     allData_Map %>%
-      filter(Jahr == input$Jahr) %>%
-      summarise(total=(allData_Map$Ladeeinrichtung))
+      filter(Jahr == input$Jahr)
   })
   
   years = sort(unique(allData_Map$year))
@@ -53,7 +52,10 @@ shinyServer(function(input, output, session) {
   
   output$map <- renderLeaflet({
     leaflet(allData_Map) %>%
-      addTiles() 
+    addTiles() %>% 
+    addProviderTiles("CartoDB.Positron") %>%
+    addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+                  color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
 
   })
   
@@ -63,14 +65,14 @@ shinyServer(function(input, output, session) {
       clearShapes() %>% 
       clearPopups() %>% 
       clearMarkers() %>%
-      addCircles(~allData_Map$Längengrad, 
-                 ~allData_Map$Breitengrad,
+      addCircles(~Längengrad, 
+                 ~Breitengrad,
                  radius = 40, 
                  weight = 3, 
-                 color=~pal(allData_Map$Ladeeinrichtung), 
+                 color=~pal(Ladeeinrichtung), 
                  fillOpacity = 0.8
       ) %>%
-      addProviderTiles("Stamen.Toner") 
+      addProviderTiles("CartoDB.Positron") 
     
     #addMarkers(
     #   lng = ~Longitude, # note the tildes before values, required
