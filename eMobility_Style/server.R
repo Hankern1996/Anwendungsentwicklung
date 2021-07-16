@@ -38,11 +38,14 @@ shinyServer(function(input, output, session) {
   #Ladesäulenkarte    
   allData_Map <- allData[5:9]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
+  yearstart <- (allData_Map %>%
+                  filter(year == 2008)
+  )
   
   
   data0 <-reactive({
     allData_Map %>%
-      filter(Jahr == input$Jahr)
+      filter(year == input$Jahr)
   })
   
   years = sort(unique(allData_Map$year))
@@ -57,8 +60,9 @@ shinyServer(function(input, output, session) {
   
   
   output$map <- renderLeaflet({
-    leaflet(allData_Map) %>%
+    leaflet(yearstart) %>%
     addTiles() %>% 
+    setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
     addProviderTiles("CartoDB.Positron") %>%
     addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
                   color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
@@ -95,9 +99,59 @@ shinyServer(function(input, output, session) {
   })
   
   
+  #zweite Map mit Slider
+
+  filteredData <- reactive({
+    allData_Map %>%
+      filter(year == input$dateSel)
+    
+     })
   
-
-
+  
+  pal <- colorFactor(
+    palette = c('red', 'blue'),
+    domain = allData_Map$Ladeeinrichtung
+  )
+  
+  
+  output$map2 <- renderLeaflet({
+    leaflet(yearstart) %>%
+      addTiles() %>% 
+      setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+                  color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+    
+  })
+  
+  observe({
+    
+    leafletProxy("map2", data = filteredData()) %>%
+      clearShapes() %>% 
+      clearPopups() %>% 
+      clearMarkers() %>%
+      addCircles(~Längengrad, 
+                 ~Breitengrad,
+                 radius = 40, 
+                 weight = 3, 
+                 color=~pal(Ladeeinrichtung), 
+                 fillOpacity = 0.8
+      ) %>%
+      addProviderTiles("CartoDB.Positron") 
+    
+    #addMarkers(
+    #   lng = ~Longitude, # note the tildes before values, required
+    #   lat = ~Latitude,
+    #   popup = ~paste(
+    #      Institution,
+    #      "<br>",
+    #      "Overall Satisfaction:",
+    #      Sat_2016,
+    #      "<br>"
+    #   )
+    #)
+    
+  })
   
   #Analyse_pro_Bundesland    
   
