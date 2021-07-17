@@ -11,7 +11,7 @@ library(gifski)
 shinyServer(function(input, output, session) {
   
   
-  allData <- read_excel("Ladesaeulenkarte.xlsx", 
+  allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
                         col_types = c("text", "text", "text", 
                                       "text", "numeric", "numeric", "date", 
                                       "numeric", "text", "numeric", "text", 
@@ -290,7 +290,7 @@ shinyServer(function(input, output, session) {
           transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
           view_follow(fixed_x = TRUE)  +
           labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-               subtitle  =  "Top 10 Länder",
+               subtitle  =  "Top 10 Städte",
                caption  = "Anzahl der Ladepunkte (summiert)")
         
         anim_save("outfile.gif", animate(p)) # New
@@ -298,8 +298,8 @@ shinyServer(function(input, output, session) {
         # Return a list containing the filename
         list(src = "outfile.gif",
              contentType = 'image/gif'
-             # width = 400,
-             # height = 300,
+             #width = 400,
+             #height = 800
              # alt = "This is alternate text"
         )}, 
         deleteFile = TRUE) 
