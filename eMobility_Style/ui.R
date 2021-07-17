@@ -103,11 +103,11 @@ shinyUI(navbarPage(title = "eLectrify",
                             sidebarLayout(
                               sidebarPanel(
                                 selectInput("animation_option","Animation Options",choices=NULL),
-                                actionButton("run_button","Berechnen",icon=icon("play"))
+                                actionButton("run_button","Berechnen (ca. 1 Min.)",icon=icon("play"))
                               ),
                               mainPanel(
                                 #textOutput("test")
-                                withSpinner(imageOutput("animatedplot"))
+                                imageOutput("animatedplot")
                                 #imageOutput("animatedplot2")
                               )
                             ),
