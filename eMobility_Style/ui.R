@@ -63,6 +63,8 @@ shinyUI(navbarPage(title = "eLectrify",
                             )
                             
                             
+                            
+                            
                    )),
                    
                    # ----------------------------------
