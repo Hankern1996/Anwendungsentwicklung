@@ -103,15 +103,18 @@ shinyServer(function(input, output, session) {
 
   filteredData <- reactive({
     allData_Map %>%
-      filter(year == input$dateSel)
-    
+      filter(year <= input$dateSel) 
+
      })
   
+
   
   pal <- colorFactor(
-    palette = c('red', 'blue'),
+    palette = c('darkgreen', 'lightblue'),
     domain = allData_Map$Ladeeinrichtung
+    
   )
+  
   
   
   output$map2 <- renderLeaflet({
