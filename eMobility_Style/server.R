@@ -7,24 +7,23 @@ library(tidyverse)
 library(gganimate)
 library(gifski)
 
+allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
+                      col_types = c("text", "text", "text", 
+                                    "text", "numeric", "numeric", "date", 
+                                    "numeric", "text", "numeric", "text", 
+                                    "numeric", "text", "numeric", "text", 
+                                    "numeric", "text", "numeric", "text", 
+                                    "text"))
+
+
+
+allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
+allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
+
+list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-  
-  
-  allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
-                        col_types = c("text", "text", "text", 
-                                      "text", "numeric", "numeric", "date", 
-                                      "numeric", "text", "numeric", "text", 
-                                      "numeric", "text", "numeric", "text", 
-                                      "numeric", "text", "numeric", "text", 
-                                      "text"))
-  
-  
-  
-  allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
-  allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
-  
-  list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
   
   #Ladesäulenkarte    
   allData_Map <- allData[5:9]
