@@ -1,12 +1,3 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(plotly)
 library(readxl)
@@ -51,8 +42,8 @@ shinyServer(function(input, output, session) {
   years = sort(unique(allData_Map$year))
   
   updateSelectInput(session, "Jahr", choices=years, selected="2008")
-
-
+  
+  
   pal <- colorFactor(
     palette = c('red', 'blue'),
     domain = allData_Map$Ladeeinrichtung
@@ -61,12 +52,12 @@ shinyServer(function(input, output, session) {
   
   output$map <- renderLeaflet({
     leaflet(yearstart) %>%
-    addTiles() %>% 
-    setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
-    addProviderTiles("CartoDB.Positron") %>%
-    addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+      addTiles() %>% 
+      setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
+      addProviderTiles("CartoDB.Positron") %>%
+      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
                   color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
-
+    
   })
   
   observe({
@@ -100,14 +91,13 @@ shinyServer(function(input, output, session) {
   
   
   #zweite Map mit Slider
-
+  
   filteredData <- reactive({
     allData_Map %>%
       filter(year <= input$dateSel) 
-
-     })
+  })
   
-
+  
   
   pal <- colorFactor(
     palette = c('darkgreen', 'lightblue'),
@@ -255,11 +245,11 @@ shinyServer(function(input, output, session) {
   updateSelectInput(session, "animation_option", choices=list_choices, selected="Top 10 Städte")
   
   animation_option <- eventReactive(input$run_button,input$animation_option)
-
-  #animation_option <- eventReactive(input$run_button,input$animation_option)
-
-  observeEvent(input$run_button,{
   
+  #animation_option <- eventReactive(input$run_button,input$animation_option)
+  
+  observeEvent(input$run_button,{
+    
     if (input$animation_option == "Top 10 Städte") {
       
       output$animatedplot <- renderImage({
@@ -314,7 +304,7 @@ shinyServer(function(input, output, session) {
         )}, 
         deleteFile = TRUE) 
       
-  }
+    }
     else {
       output$animatedplot <- renderImage({
         # A temp file to save the output.
@@ -368,14 +358,14 @@ shinyServer(function(input, output, session) {
         )}, 
         deleteFile = TRUE) 
     }
-    })
+  })
   
   
   #Animation of plot
-
   
   
   
-
+  
+  
   
 })
