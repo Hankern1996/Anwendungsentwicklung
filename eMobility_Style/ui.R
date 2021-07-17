@@ -59,7 +59,7 @@ shinyUI(navbarPage(title = "eLectrify",
                                               max = 2021,
                                               step = 1,
                                               value = 2007,
-                                              animate = animationOptions(interval = 2000, loop = FALSE)
+                                              animate = animationOptions(interval = 2200, loop = FALSE)
                                   )
                      ),
                      
