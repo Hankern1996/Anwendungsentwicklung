@@ -223,15 +223,15 @@ shinyServer(function(input, output, session) {
   #})
   
   output$orderNum <- renderText({
-    "test"
+    paste("+",as.character(round(veraenderung())),"%")
   })
   
   output$orderNum1 <- renderText({
-    "test"
+    paste("+",as.character(round(veraenderung())),"%")
   })
   
   output$orderNum2 <- renderText({
-    "test"
+    paste("+",as.character(round(veraenderung())),"%")
   })
   
   
@@ -260,9 +260,6 @@ shinyServer(function(input, output, session) {
     fig1<- fig1 %>% layout(legend = list(x = 0.1, y = 0.9), barmode="stack")
   })
   
-
-  
-  
   data_kumuliert = reactive({
     d = allData %>%
       filter(Bundesland == input$country) %>%
@@ -273,25 +270,43 @@ shinyServer(function(input, output, session) {
       mutate(total1 = cumsum(total)) %>%
       filter(Month >= input$input_date_range[1]) 
   })
-  
-  
  
-  #min_wert = reactive({
-  #  d = allData %>%
-  #    filter(Bundesland == input$country) %>%
-  #    
-  #})
+  min_wert = reactive({
+    d = allData %>%
+      filter(Bundesland == input$country) %>%
+      filter(Inbetriebnahmedatum <= input$input_date_range[1]) %>%
+      group_by(Month) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      arrange(desc(Month)) %>%
+      slice(0:1) %>%
+      select(total1)
+  })
   
-  #min_wert <- data_kumuliert() %>% 
+  max_wert = reactive({
+    d = allData %>%
+      filter(Bundesland == input$country) %>%
+      filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
+      group_by(Month) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      arrange(desc(Month)) %>%
+      slice(0:1) %>%
+      select(total1)
+  })
+  
+  veraenderung = reactive({
+    ((max_wert() - min_wert())/min_wert())*100
+  })
   
   output$kumuliert <- renderPlotly({
     fig <- plot_ly(data = data_kumuliert(),x=~Month,y=~total1,name =~Ladeeinrichtung, type="scatter", mode="lines")
     fig %>% layout(legend = list(x = 0.1, y = 0.9))
   })
   
-  output$datahead <- renderTable({
-    data()
-  })
+  #output$datahead <- renderTable({
+  #  data()
+  #})
   
   
  

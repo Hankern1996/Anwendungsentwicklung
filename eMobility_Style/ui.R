@@ -57,14 +57,14 @@ shinyUI(navbarPage(title = "eLectrify",
                               #         subtitle = "test",
                               #         icon = "calendar",
                               #         color = "blue"),
-                              valueBox(
-                                uiOutput("orderNum"), "New Orders", icon = icon("credit-card")
+                              infoBox(
+                                uiOutput("orderNum"), "Veränderung in %", icon = icon("chart-line", lib = "font-awesome")
                               ),
-                              valueBox(
-                                uiOutput("orderNum1"), "New Orders", icon = icon("credit-card")
+                              infoBox(
+                                uiOutput("orderNum1"), "Not specified", icon = icon("credit-card")
                               ),
-                              valueBox(
-                                uiOutput("orderNum2"), "New Orders", icon = icon("credit-card")
+                              infoBox(
+                                uiOutput("orderNum2"), "Not specified", icon = icon("credit-card")
                               )
                             ),
                             
@@ -254,11 +254,16 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$link(rel = "stylesheet", 
                                         type = "text/css", 
                                         href = "plugins/carousel.css"),
-                              tags$script(src = "plugins/holder.js")
+                              tags$script(src = "plugins/holder.js"),
+                              tags$style("#orderNum{font-size: 38px}"),
+                              tags$style("#orderNum1{font-size: 38px}"),
+                              tags$style("#orderNum2{font-size: 38px}")
                             ),
                             tags$style(type="text/css",
                                        ".shiny-output-error { visibility: hidden; }",
                                        ".shiny-output-error:before { visibility: hidden; }"
+                                       #HTML(".fa{font-size: 24px;}")
+                                       
                             )
                    )
                    
