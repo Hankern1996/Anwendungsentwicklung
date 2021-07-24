@@ -9,12 +9,9 @@ library(gifski)
 library(shinycssloaders)
 library(directlabels)
 library(forecast)
-<<<<<<< HEAD
 library(lubridate)
-=======
 library(geojson)
 
->>>>>>> f3da261 (geojson data for density map)
 
 allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -45,6 +42,7 @@ shinyServer(function(input, output, session) {
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
   year_start0 <- allData %>% filter(year <= 2020, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
   
   data_density <-reactive({
     allData_Map %>%
@@ -57,12 +55,12 @@ shinyServer(function(input, output, session) {
   
   updateSelectInput(session, "Jahr2", choices=years, selected="2008")
   
-  bins <- c(0,1, 10, 20, 50, 100, 200, 500, 1000, Inf)
-  pal <- colorBin("YlOrRd", domain = year_start0$total, bins = bins)
+  bins <- c(0,1, 5,8, 10, 15, 20,50, 70,100,150, Inf)
+  pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
 
   labels <- sprintf(
-    "<strong>%s</strong><br/>%g Ladestationen / km<sup>2</sup>",
-    year_start0$Bundesland, year_start0$total
+    "<strong>%s</strong><br/>%g Ladestationen / 100 km<sup>2</sup>",
+    year_start0$Bundesland, year_start0$density
   ) %>% lapply(htmltools::HTML)
   
   output$m <- renderLeaflet({
@@ -74,7 +72,7 @@ shinyServer(function(input, output, session) {
         accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
       addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
                                  opacity = 1.0, fillOpacity = 0.5,
-                                 fillColor = ~pal(year_start0$total),
+                                 fillColor = ~pal(year_start0$density),
                                  highlight = highlightOptions(color = "white", weight = 2,
                                                                      bringToFront = TRUE),
                                  label = labels,
