@@ -11,6 +11,11 @@ library(shiny)
 library(plotly)
 library(leaflet)
 library(shinycssloaders)
+library(shinydashboard)
+library(shinyWidgets)
+
+
+
 
 
 # Define UI for application that draws a histogram
@@ -19,6 +24,9 @@ shinyUI(navbarPage(title = "eLectrify",
                    footer = includeHTML("footer.html"),
                    fluid = TRUE, 
                    collapsible = TRUE,
+                  
+                  
+      
                    
                    # ----------------------------------
                    # tab panel 1 - Home
@@ -35,19 +43,80 @@ shinyUI(navbarPage(title = "eLectrify",
                             )
                    ),
                    
+                
+                   
                    # ----------------------------------
                    # tab panel 3 - Analysen
                    tabPanel("Historische Entwicklung",
+                            fluidRow(
+                              #valueBox(value = "mean_mpg",
+                              #         subtitle = "mean of mpg",
+                              #         icon = "tachometer",
+                              #         color = "green"),
+                              #valueBox(value = "mean_mpg1",
+                              #         subtitle = "test",
+                              #         icon = "calendar",
+                              #         color = "blue"),
+                              valueBox(
+                                uiOutput("orderNum"), "New Orders", icon = icon("credit-card")
+                              ),
+                              valueBox(
+                                uiOutput("orderNum1"), "New Orders", icon = icon("credit-card")
+                              ),
+                              valueBox(
+                                uiOutput("orderNum2"), "New Orders", icon = icon("credit-card")
+                              )
+                            ),
+                            
+                            
+                            
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
-                                           selectizeInput("country", "Wähle Bundesland", choices = NULL)),
+                                           selectizeInput("country", "Wähle Bundesland", choices = NULL),
+                                           #airMonthpickerInput("input_var_month",
+                                          #                     label = "Zeitraum",
+                                          #                     range=TRUE,
+                                           #                    #value = "2020-01-01",
+                                            #                  maxDate = "2021-06-01",
+                                             #                 minDate = "2008-07-01",
+                                              #                #view = "months", #editing what the popup calendar shows when it opens
+                                               #               #minView = "months", #making it not possible to go down to a "days" view and pick the wrong date
+                                                #              dateFormat = "mm-yyyy",
+                                                 #             language ="de"
+                                                  #            ),
+                                           dateRangeInput("input_date_range",
+                                                          label="Zeitraum",
+                                                          start = "2020-01-01", 
+                                                          end = "2021-01-01",
+                                                          min = "2008-07-01",
+                                                          max = "2021-06-31",
+                                                          format = "dd-mm-yyyy",
+                                                          language = "de",
+                                                          startview = "year"
+                                             
+                                           ),
+                                          
+                                           #sliderInput("DatesMerge",
+                                          #             "Dates:",
+                                          #             min = as.Date("2008/07/01"),
+                                          #             max = as.Date("2021/06/31"),
+                                          #             value=c(as.Date("2008/07/01"), as.Date("2021/06/31")),
+                                          #             format = "%m %Y"
+                                          #        )
+                                           
+                                           #min = as.Date("2010-01-01"),max =as.Date("2014-12-01"),value=as.Date("2014-12-01"),timeFormat="%b %Y"
+                                      
+                                           ),
+                            
                               
                               mainPanel(
                                 tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot")),
+                                            #tabPanel("Test", verbatimTextOutput("test")),
+                                            tabPanel("Kumuliert", plotlyOutput("kumuliert")),
+                                            tabPanel("Distinktiv", plotlyOutput("barplot")),
                                             tabPanel("Data", tableOutput("datahead"))),
-                              )
-                            ),
+                              
+                            )),
                             
                             #sidebarLayout(
                             #  sidebarPanel(h4("Wachstum der Ladepunkten pro Bundesland"),
@@ -60,29 +129,29 @@ shinyUI(navbarPage(title = "eLectrify",
                             #  )
                             #),
                             
-                            sidebarLayout(
-                              sidebarPanel(h4("Top 10 Städte"),
-                                           selectInput("checkYear", "Wähle Jahr", choices = NULL)
-                              ),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot1")),
-                                            tabPanel("Data", tableOutput("datahead1"))),
-                              )
-                            ),
+                            #sidebarLayout(
+                            #  sidebarPanel(h4("Top 10 Städte"),
+                            #               selectInput("checkYear", "Wähle Jahr", choices = NULL)
+                            #  ),
+                            #  
+                            #  mainPanel(
+                            #    tabsetPanel(type = "tabs",
+                            #                tabPanel("Barplot", plotlyOutput("barplot1")),
+                            #                tabPanel("Data", tableOutput("datahead1"))),
+                            #  )
+                            #),
                             
-                            sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme der Ladepunkte"),
-                                           selectInput("checkBundesland", "Wähle Bundesland", choices = NULL)
-                              ),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Forecast", plotlyOutput("forecast")),
-                                            tabPanel("Data", tableOutput("datahead2"))),
-                              )
-                            )
+                            #sidebarLayout(
+                            #  sidebarPanel(h4("Inbetriebnahme der Ladepunkte"),
+                            #               selectInput("checkBundesland", "Wähle Bundesland", choices = NULL)
+                            #  ),
+                            #  
+                            #  mainPanel(
+                            #    tabsetPanel(type = "tabs",
+                            #                tabPanel("Forecast", plotlyOutput("forecast")),
+                            #                tabPanel("Data", tableOutput("datahead2"))),
+                            #  )
+                            #)
                             #propertyComparison()
                    ),
                    
@@ -164,6 +233,7 @@ shinyUI(navbarPage(title = "eLectrify",
                             #  )
                             #),
                             
+                            useShinydashboard(),
                             
                             #includeHTML("about.html"),
                             shinyjs::useShinyjs(),

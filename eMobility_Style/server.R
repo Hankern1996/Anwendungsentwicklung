@@ -9,6 +9,7 @@ library(gifski)
 library(shinycssloaders)
 library(directlabels)
 library(forecast)
+library(lubridate)
 
 allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -22,6 +23,7 @@ allData <- read_excel("Ladesaeulenkarte_neu.xlsx",
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
 allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
+allData$Month <- floor_date(allData$Inbetriebnahmedatum, "month")
 
 list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 
@@ -150,14 +152,43 @@ shinyServer(function(input, output, session) {
   })
   
   #------------------------
-  #Analyse_pro_Bundesland    
+  #Analyse_pro_Bundesland   
+  
+  #output$mean_mpg<- renderText({ 
+  #  text1
+  #})
+  
+  #output$mean_mpg1<- renderText({ 
+  #  "text1"
+  #})
+  
+  output$orderNum <- renderText({
+    "test"
+  })
+  
+  output$orderNum1 <- renderText({
+    "test"
+  })
+  
+  output$orderNum2 <- renderText({
+    "test"
+  })
+  
+  
+  text1 <- "Hallo"
+  #output$vbox <- renderValueBox(vb)
+  
+  
   
   data = reactive({
     d = allData %>%
       filter(Bundesland == input$country) %>%
-      group_by(year, Ladeeinrichtung) %>%
+      filter(Inbetriebnahmedatum >= input$input_date_range[1]) %>%
+      filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
+      group_by(Month, Ladeeinrichtung) %>%
       summarise(total=sum(Ladepunkte))
   })
+  
   
   #Analysen Ladesäule pro Bundesland (Schnell- und Langsam)
   countries = sort(unique(allData$Bundesland))[-1]
@@ -165,7 +196,37 @@ shinyServer(function(input, output, session) {
   updateSelectInput(session, "country", choices=countries, selected="Sachsen")
   
   output$barplot <- renderPlotly({
-    plot_ly(data = data(),x=~year,y=~total,name =~Ladeeinrichtung, type="bar")
+    fig1 <- plot_ly(data = data(),x=~Month,y=~total,name =~Ladeeinrichtung, type="bar")
+    fig1<- fig1 %>% layout(legend = list(x = 0.1, y = 0.9), barmode="stack")
+  })
+  
+
+  
+  
+  data_kumuliert = reactive({
+    d = allData %>%
+      filter(Bundesland == input$country) %>%
+      filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
+      group_by(Month, Ladeeinrichtung) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      group_by(Ladeeinrichtung) %>%
+      mutate(total1 = cumsum(total)) %>%
+      filter(Month >= input$input_date_range[1]) 
+  })
+  
+  
+ 
+  #min_wert = reactive({
+  #  d = allData %>%
+  #    filter(Bundesland == input$country) %>%
+  #    
+  #})
+  
+  #min_wert <- data_kumuliert() %>% 
+  
+  output$kumuliert <- renderPlotly({
+    fig <- plot_ly(data = data_kumuliert(),x=~Month,y=~total1,name =~Ladeeinrichtung, type="scatter", mode="lines")
+    fig %>% layout(legend = list(x = 0.1, y = 0.9))
   })
   
   output$datahead <- renderTable({
