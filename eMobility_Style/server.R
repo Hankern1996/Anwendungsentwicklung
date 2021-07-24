@@ -41,13 +41,15 @@ shinyServer(function(input, output, session) {
   allData_Map <- allData[5:10]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
+  flaeche <- read_excel("Bundesland_flaeche.xlsx",
+                        col_types = c("text", "numeric"))
+  
   year_start0 <- allData %>% filter(year <= 2020, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
   year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
   
   data_density <-reactive({
     allData_Map %>%
-      filter(year <= input$Jahr2) %>%
-      cumsum(allData_Map$Ladepunkte)
+      filter(year <= input$Jahr2, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
 
   })
   
