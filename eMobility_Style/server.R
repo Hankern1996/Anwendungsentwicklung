@@ -9,7 +9,12 @@ library(gifski)
 library(shinycssloaders)
 library(directlabels)
 library(forecast)
+<<<<<<< HEAD
 library(lubridate)
+=======
+library(geojson)
+
+>>>>>>> f3da261 (geojson data for density map)
 
 allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -30,14 +35,70 @@ list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
-  #---------------------------------
-  #Ladesäulenkarte    
+  #-------------------------------
+  
+  #Dichtekarte:
+  states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
+  class(states)
+  
+  allData_Map <- allData[5:10]
+  allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
+  
+  year_start0 <- allData %>% filter(year <= 2020, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  
+  data_density <-reactive({
+    allData_Map %>%
+      filter(year <= input$Jahr2) %>%
+      cumsum(allData_Map$Ladepunkte)
+
+  })
+  
+  years = sort(unique(allData_Map$year))
+  
+  updateSelectInput(session, "Jahr2", choices=years, selected="2008")
+  
+  bins <- c(0,1, 10, 20, 50, 100, 200, 500, 1000, Inf)
+  pal <- colorBin("YlOrRd", domain = year_start0$total, bins = bins)
+
+  labels <- sprintf(
+    "<strong>%s</strong><br/>%g Ladestationen / km<sup>2</sup>",
+    year_start0$Bundesland, year_start0$total
+  ) %>% lapply(htmltools::HTML)
+  
+  output$m <- renderLeaflet({
+    leaflet(year_start0) %>%
+      addTiles() %>% 
+      setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
+      addProviderTiles("CartoDB.Positron", options = providerTileOptions(
+        id = "mapbox.light",
+        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
+      addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
+                                 opacity = 1.0, fillOpacity = 0.5,
+                                 fillColor = ~pal(year_start0$total),
+                                 highlight = highlightOptions(color = "white", weight = 2,
+                                                                     bringToFront = TRUE),
+                                 label = labels,
+                                 labelOptions = labelOptions(
+                                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                                    textsize = "15px",
+                                    direction = "auto")) %>%
+      addLegend(pal = pal, values = ~density, opacity = 0.7, title = NULL,
+                                            position = "bottomright")
+  
+  })
+  
+  
+  
+  
+  
+  
+   #Ladesäulenkarte
   allData_Map <- allData[5:9]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
-  yearstart <- (allData_Map %>%
-                  filter(year == 2008)
-  )
   
+  yearstart <- (allData_Map %>%
+                  filter(year <= 2008) 
+  )
   
   data0 <-reactive({
     allData_Map %>%
@@ -47,13 +108,12 @@ shinyServer(function(input, output, session) {
   years = sort(unique(allData_Map$year))
   
   updateSelectInput(session, "Jahr", choices=years, selected="2008")
-  
-  
-  pal <- colorFactor(
-    palette = c('red', 'blue'),
+
+  pal1 <- colorFactor(
+    palette = c('darkgreen', 'lightblue'),
     domain = allData_Map$Ladeeinrichtung
+    
   )
-  
   
   output$map <- renderLeaflet({
     leaflet(yearstart) %>%
@@ -61,7 +121,7 @@ shinyServer(function(input, output, session) {
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron") %>%
       addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+                  color=~pal1(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
     
   })
   
@@ -75,7 +135,7 @@ shinyServer(function(input, output, session) {
                  ~Breitengrad,
                  radius = 40, 
                  weight = 3, 
-                 color=~pal(Ladeeinrichtung), 
+                 color=~pal1(Ladeeinrichtung), 
                  fillOpacity = 0.8
       ) %>%
       addProviderTiles("CartoDB.Positron") 
@@ -104,7 +164,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  pal <- colorFactor(
+  pal1 <- colorFactor(
     palette = c('darkgreen', 'lightblue'),
     domain = allData_Map$Ladeeinrichtung
     
@@ -118,7 +178,7 @@ shinyServer(function(input, output, session) {
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron") %>%
       addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+                  color=~pal1(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
     
   })
   
@@ -132,7 +192,7 @@ shinyServer(function(input, output, session) {
                  ~Breitengrad,
                  radius = 40, 
                  weight = 3, 
-                 color=~pal(Ladeeinrichtung), 
+                 color=~pal1(Ladeeinrichtung), 
                  fillOpacity = 0.8
       ) %>%
       addProviderTiles("CartoDB.Positron") 
