@@ -12,6 +12,7 @@ library(plotly)
 library(leaflet)
 library(shinycssloaders)
 
+
 # Define UI for application that draws a histogram
 shinyUI(navbarPage(title = "eLectrify",
                    theme = "style/style.css",
@@ -35,8 +36,61 @@ shinyUI(navbarPage(title = "eLectrify",
                    ),
                    
                    # ----------------------------------
+                   # tab panel 3 - Analysen
+                   tabPanel("Historische Entwicklung",
+                            sidebarLayout(
+                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
+                                           selectizeInput("country", "Wähle Bundesland", choices = NULL)),
+                              
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Barplot", plotlyOutput("barplot")),
+                                            tabPanel("Data", tableOutput("datahead"))),
+                              )
+                            ),
+                            
+                            #sidebarLayout(
+                            #  sidebarPanel(h4("Wachstum der Ladepunkten pro Bundesland"),
+                            #               selectizeInput("country_zeit", "Wähle Bundesland", choices = NULL)),
+                            #  
+                            #  mainPanel(
+                            #   tabsetPanel(type = "tabs",
+                            #                tabPanel("Lineplot", imageOutput("lineplot")),
+                            #                tabPanel("Data", tableOutput("datahead2"))),
+                            #  )
+                            #),
+                            
+                            sidebarLayout(
+                              sidebarPanel(h4("Top 10 Städte"),
+                                           selectInput("checkYear", "Wähle Jahr", choices = NULL)
+                              ),
+                              
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Barplot", plotlyOutput("barplot1")),
+                                            tabPanel("Data", tableOutput("datahead1"))),
+                              )
+                            ),
+                            
+                            sidebarLayout(
+                              sidebarPanel(h4("Inbetriebnahme der Ladepunkte"),
+                                           selectInput("checkBundesland", "Wähle Bundesland", choices = NULL)
+                              ),
+                              
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Forecast", plotlyOutput("forecast")),
+                                            tabPanel("Data", tableOutput("datahead2"))),
+                              )
+                            )
+                            #propertyComparison()
+                   ),
+                   
+                   
+                   
+                   # ----------------------------------
                    # tab panel 2 - Ladesäulenkarte
-                   tabPanel("Ladesäulenkarte",
+                   tabPanel("Flächenabdeckung",
                             #includeHTML("scrollToTop.html"),
                             
                             sidebarLayout(
@@ -72,43 +126,14 @@ shinyUI(navbarPage(title = "eLectrify",
                    
                    ),
                    
-                   # ----------------------------------
-                   # tab panel 3 - Analysen
-                   tabPanel("Analysen",
-                            sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
-                                           selectizeInput("country", "Wähle Bundesland", choices = NULL)),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot")),
-                                            tabPanel("Data", tableOutput("datahead"))),
-                              )
-                            ),
-                            
-                            sidebarLayout(
-                              sidebarPanel(h4("Top 10 Städte"),
-                                           selectInput("checkYear", "Wähle Jahr", choices = NULL)
-                              ),
-                              
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Barplot", plotlyOutput("barplot1")),
-                                            tabPanel("Data", tableOutput("datahead1"))),
-                              )
-                            )
-                            #propertyComparison()
-                   ),
-
                    
                    
                    # tab panel 4 - About
-                   tabPanel("Animationen",
+                   tabPanel("Prognosen",
                             
                             sidebarLayout(
                               sidebarPanel(
-                                selectInput("animation_option","Animation Options",choices=NULL),
-                                actionButton("run_button","Berechnen (ca. 1 Min.)",icon=icon("play"))
+                                selectInput("animation_option","Ranking auswählen",choices=NULL)
                               ),
                               mainPanel(
                                 #textOutput("test")
@@ -116,6 +141,29 @@ shinyUI(navbarPage(title = "eLectrify",
                                 #imageOutput("animatedplot2")
                               )
                             ),
+                            
+                            
+                            sidebarLayout(
+                              sidebarPanel(
+                                selectInput("country_zeit1", "Bundesland auswählen", choices = NULL)
+                              ),
+                              mainPanel(
+                                #textOutput("test")
+                                imageOutput("lineplot1")
+                              )
+                            ),
+                            
+                            #sidebarLayout(
+                            #  sidebarPanel(
+                            #    h4("Wachstum der Ladepunkten pro Bundesland"),
+                            #    selectInput("country_zeit", "Wähle Bundesland", choices = NULL),
+                            #    actionButton("run_button_zeit","Berechnen (ca. 1 Min.)",icon=icon("play"))
+                            #  ),
+                            #  mainPanel(
+                            #    imageOutput("lineplot")
+                            #  )
+                            #),
+                            
                             
                             #includeHTML("about.html"),
                             shinyjs::useShinyjs(),

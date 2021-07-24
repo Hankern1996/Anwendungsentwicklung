@@ -6,6 +6,9 @@ library(ggplot2)
 library(tidyverse)
 library(gganimate)
 library(gifski)
+library(shinycssloaders)
+library(directlabels)
+library(forecast)
 
 allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
                       col_types = c("text", "text", "text", 
@@ -25,6 +28,7 @@ list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
+  #---------------------------------
   #Ladesäulenkarte    
   allData_Map <- allData[5:9]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -145,6 +149,7 @@ shinyServer(function(input, output, session) {
     
   })
   
+  #------------------------
   #Analyse_pro_Bundesland    
   
   data = reactive({
@@ -155,7 +160,7 @@ shinyServer(function(input, output, session) {
   })
   
   #Analysen Ladesäule pro Bundesland (Schnell- und Langsam)
-  countries = sort(unique(allData$Bundesland))
+  countries = sort(unique(allData$Bundesland))[-1]
   
   updateSelectInput(session, "country", choices=countries, selected="Sachsen")
   
@@ -167,6 +172,10 @@ shinyServer(function(input, output, session) {
     data()
   })
   
+  
+ 
+  
+  #-----------
   # Graphen zu Top 10 Städte Deutschland
   
   
@@ -198,19 +207,52 @@ shinyServer(function(input, output, session) {
     data1()
   })
   
+  
+  # -------------------------------------
+  # Forecast
+  
+  data_forecast = reactive({
+    d = allData %>%
+      filter(Bundesland == input$checkBundesland) %>%
+      group_by(year, Ladeeinrichtung) %>%
+      summarise(total=sum(Ladepunkte)) %>%
+      group_by(Ladeeinrichtung) %>%
+      mutate(total1 = cumsum(total))
+  })
+  
+  fcast_dates <- (1:6)
+  
+  countries = sort(unique(allData$Bundesland))[-1]
+  
+  updateSelectInput(session, "checkBundesland", choices=countries, selected="Baden-Württemberg")
+  
+  output$forecast <- renderPlotly({
+    plot_ly(data = data_forecast(),x=~year,y=~total1, name="Historical", 
+            type="scatter", mode = "lines", orientation = 'h' ) %>% 
+      add_trace(x=fcast_dates, y = forecast(auto.arima(~year),h=6), 
+                name="Forecast", dash="dot")
+    #layout(yaxis = yform)
+  })
+  
+  
+  # --------------------------------------------
+  # Animation
   # Preparation of data for animation of cities
   
   data2 <- allData %>%
+    filter(year > 2010) %>%
     group_by(year, Ort) %>%
-    summarise(total2 = sum(Ladepunkte)) %>%
+    summarise(total1 = sum(Ladepunkte)) %>%
+    arrange(desc(total1))
+  
+  data2 <- data2 %>% 
+    group_by(Ort) %>%
+    arrange(year) %>%
+    mutate(total2 = cumsum(total1)) %>%
+    group_by(year) %>%
     arrange(desc(total2)) %>%
     slice(1:10)
-  
-  data2 <- data2 %>%
-    filter(year<2020)
-  
-  data2 <- data2  %>%
-    filter(year>2014)
+           
   
   data2a <- data2 %>%
     # The * 1 makes it possible to have non-integer ranks while sliding
@@ -221,16 +263,19 @@ shinyServer(function(input, output, session) {
     filter(rank <=10) 
   
   data3 <- allData %>%
+    filter(year > 2010) %>%
     group_by(year, Bundesland) %>%
-    summarise(total2 = sum(Ladepunkte)) %>%
+    summarise(total1 = sum(Ladepunkte)) %>%
+    arrange(desc(total1))
+  
+  data3 <- data3 %>% 
+    group_by(Bundesland) %>%
+    arrange(year) %>%
+    mutate(total2 = cumsum(total1)) %>%
+    group_by(year) %>%
     arrange(desc(total2)) %>%
     slice(1:10)
-  
-  data3 <- data3 %>%
-    filter(year<2020)
-  
-  data3 <- data3  %>%
-    filter(year>2014)
+
   
   data3a <- data3 %>%
     # The * 1 makes it possible to have non-integer ranks while sliding
@@ -245,13 +290,52 @@ shinyServer(function(input, output, session) {
   
   animation_option <- eventReactive(input$run_button,input$animation_option)
   
-  #animation_option <- eventReactive(input$run_button,input$animation_option)
+  output$animatedplot <- renderImage({
+    
+    if ( input$animation_option == "Top 10 Städte") { 
+      return(list(
+        src = "www/images/gif1/top_staedte.gif",
+        contentType = "image/gif",
+        width = 590,
+        height = 400,
+        alt = "Ranking der besten 10 Städte"
+      ))
+    } else if (input$animation_option == "Top 10 Bundesländer") {
+      return(list(
+        src = "www/images/gif1/top_bundeslaender.gif",
+        filetype = "image/gif",
+        width = 590,
+        height = 400,
+        alt = "Ranking der besten 10 Bundesländer"
+      ))
+    } else if (input$animation_option == "Top 10 Bundesländer") {
+      return(list(
+        src = "www/images/gif1/top_bundeslaender.gif",
+        filetype = "image/gif",
+        width = 590,
+        height = 400,
+        alt = "Ranking der besten 10 Bundesländer"
+      ))
+    } else if (input$animation_option == "Top 10 Bundesländer") {
+      return(list(
+        src = "www/images/gif1/top_bundeslaender.gif",
+        filetype = "image/gif",
+        width = 590,
+        height = 400,
+        alt = "Ranking der besten 10 Bundesländer"
+      ))
+    }
+    
+  }, deleteFile = FALSE)
   
+
   observeEvent(input$run_button,{
     
     if (input$animation_option == "Top 10 Städte") {
       
       output$animatedplot <- renderImage({
+         
+
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext=".gif")
@@ -281,18 +365,19 @@ shinyServer(function(input, output, session) {
                 panel.grid.minor=element_blank(),
                 panel.grid.major.x = element_line( size=.1, color="grey" ),
                 panel.grid.minor.x = element_line( size=.1, color="grey" ),
-                plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
-                plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
-                plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+                plot.title=element_text(size=20, hjust=0.5, face="bold", colour="grey", vjust=-1),
+                plot.subtitle=element_text(size=13, hjust=0.5, face="italic", color="grey", vjust=-1),
+                plot.caption =element_text(size=11, hjust=0.5, face="italic", color="grey"),
                 plot.background=element_blank(),
                 plot.margin = margin(2,2, 2, 4, "cm")) +
-          transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
+          transition_states(year, transition_length = 5, state_length = 5, wrap = FALSE) +
           view_follow(fixed_x = TRUE)  +
           labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-               subtitle  =  "Top 10 Städte",
+               subtitle  =  " ",
                caption  = "Anzahl der Ladepunkte (summiert)")
         
-        anim_save("outfile.gif", animate(p)) # New
+        anim_save("outfile.gif", animate(p, 200, fps = 20, width=600, height = 420, 
+                                         renderer = gifski_renderer("gganimate.gif"))) # New
         
         # Return a list containing the filename
         list(src = "outfile.gif",
@@ -300,12 +385,13 @@ shinyServer(function(input, output, session) {
              #width = 400,
              #height = 800
              # alt = "This is alternate text"
-        )}, 
-        deleteFile = TRUE) 
+        )}, deleteFile = TRUE)
+    
       
     }
     else {
       output$animatedplot <- renderImage({
+
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext=".gif")
@@ -337,16 +423,17 @@ shinyServer(function(input, output, session) {
                 panel.grid.minor.x = element_line( size=.1, color="grey" ),
                 plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
                 plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
-                plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+                plot.caption =element_text(size=11, hjust=0.5, face="italic", color="grey"),
                 plot.background=element_blank(),
                 plot.margin = margin(2,2, 2, 4, "cm")) +
-          transition_states(year, transition_length = 5, state_length = 2, wrap = FALSE) +
+          transition_states(year, transition_length = 5, state_length = 5, wrap = FALSE) +
           view_follow(fixed_x = TRUE)  +
           labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-               subtitle  =  "Top 10 Bundesländer",
+               subtitle  =  " ",
                caption  = "Anzahl der Ladepunkte (summiert)")
         
-        anim_save("outfile.gif", animate(p)) # New
+        anim_save("outfile.gif", animate(p, 200, fps = 20, width=600, height = 420, 
+                                         renderer = gifski_renderer("gganimate.gif"))) # New
         
         # Return a list containing the filename
         list(src = "outfile.gif",
@@ -355,15 +442,199 @@ shinyServer(function(input, output, session) {
              # height = 300,
              # alt = "This is alternate text"
         )}, 
-        deleteFile = TRUE) 
+        deleteFile = FALSE) 
+    
     }
   })
   
+  #-----------------------
+  #Animierte Zeitleiste
   
-  #Animation of plot
+  data_zeit = reactive({
+    d = allData %>%
+      filter(Bundesland == input$country_zeit) %>%
+      group_by(year, Ladeeinrichtung) %>%
+      summarise(total=sum(Ladepunkte)) %>%
+      group_by(Ladeeinrichtung) %>%
+      mutate(total1 = cumsum(total))
+  })
+  
+  countries = sort(unique(allData$Bundesland))[-1]
+  
+  updateSelectInput(session, "country_zeit", choices=countries, selected="Baden-Württemberg")
+  
+  observeEvent(input$run_button_zeit,{
+  output$lineplot <- renderImage({
+    
+    outfile <- tempfile(fileext=".gif")
+    
+    plot = ggplot(
+      data = data_zeit(),
+      aes(year, total1, group=Ladeeinrichtung, color = Ladeeinrichtung)) +
+      geom_line(size = 1) +
+      geom_point(aes(group = seq_along(year))) +
+      #scale_color_viridis_d() +
+      labs(x = "Jahr", y = "Ladepunkte") +
+      theme(legend.position = "bottom",
+            legend.title = element_text(size=11, face="italic", colour = "grey"),
+            axis.text=element_text(size=11, colour = "grey46"),
+            axis.title =element_text(size=11, hjust=0.5, color="grey46"),
+            legend.text=element_text(size=11, face="italic", colour = "grey"),
+            plot.title=element_text(size=20, hjust=0.5, face="bold", colour="grey", vjust=-1),
+            plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),) +
+      transition_reveal(readr::parse_number(year)) +
+      labs(title = 'Wachstum der Ladepunkte pro Jahr',
+           subtitle  =  " ")
+    
+    anim_save("outfile.gif", animate(plot, 200, fps = 20, width=590, height = 420)) # New
+    
+    # Return a list containing the filename
+    list(src = "outfile.gif",
+         contentType = 'image/gif'
+         #width = 400,
+         #height = 800
+         # alt = "This is alternate text"
+    )}, deleteFile = FALSE)
+  })
   
   
+  countries = sort(unique(allData$Bundesland))[-1]
   
+  updateSelectInput(session, "country_zeit1", choices=countries, selected="Baden-Württemberg")
+  
+    output$lineplot1 <- renderImage({
+  
+      if ( input$country_zeit1 == "Baden-Württemberg") { 
+        return(list(
+          src = "www/images/gif2/baden_wuerttemberg.gif",
+          fileType = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Baden-Württemberg"
+        ))
+      } else if (input$country_zeit1 == "Bayern") {
+        return(list(
+          src = "www/images/gif2/bayern.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Bayern"
+        ))
+      } else if (input$country_zeit1 == "Berlin") {
+        return(list(
+          src = "www/images/gif2/berlin.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Berlin"
+        ))
+      } else if (input$country_zeit1 == "Brandenburg") {
+        return(list(
+          src = "www/images/gif2/brandenburg.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Brandenburg"
+        ))
+      } else if (input$country_zeit1 == "Bremen") {
+        return(list(
+          src = "www/images/gif2/bremen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Bremen"
+        ))
+      } else if (input$country_zeit1 == "Hamburg") {
+        return(list(
+          src = "www/images/gif2/hamburg.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Hamburg"
+        ))
+      } else if (input$country_zeit1 == "Hessen") {
+        return(list(
+          src = "www/images/gif2/hessen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Hessen"
+        ))
+      } else if (input$country_zeit1 == "Mecklenburg-Vorpommern") {
+        return(list(
+          src = "www/images/gif2/mecklenburg_vorpommern.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Mecklenburg-Vorpommern"
+        ))
+      } else if (input$country_zeit1 == "Niedersachsen") {
+        return(list(
+          src = "www/images/gif2/niedersachsen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Niedersachsen"
+        ))
+      } else if (input$country_zeit1 == "Nordrhein-Westfalen") {
+        return(list(
+          src = "www/images/gif2/nordrhein_westfalen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Nordrhein-Westfalen"
+        ))
+      } else if (input$country_zeit1 == "Rheinland-Pfalz") {
+        return(list(
+          src = "www/images/gif2/rheinland_pfalz.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Rheinland-Pfalz"
+        ))
+      } else if (input$country_zeit1 == "Saarland") {
+        return(list(
+          src = "www/images/gif2/saarland.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Saarland"
+        ))
+      } else if (input$country_zeit1 == "Sachsen") {
+        return(list(
+          src = "www/images/gif2/sachsen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Sachsen"
+        ))
+      } else if (input$country_zeit1 == "Sachsen-Anhalt") {
+        return(list(
+          src = "www/images/gif2/sachsen_anhalt.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Sachsen-Anhalt"
+        ))
+      } else if (input$country_zeit1 == "Schleswig-Holstein") {
+        return(list(
+          src = "www/images/gif2/schleswig_holstein.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Schleswig-Holstein"
+        ))
+      } else if (input$country_zeit1 == "Thüringen") {
+        return(list(
+          src = "www/images/gif2/thueringen.gif",
+          filetype = "image/gif",
+          width = 590,
+          height = 400,
+          alt = "Entwicklung der Ladepunkte in Thüringen"
+        ))
+      }
+  
+    }, deleteFile = FALSE)
   
   
   
