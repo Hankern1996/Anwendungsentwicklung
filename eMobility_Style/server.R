@@ -13,7 +13,7 @@ library(lubridate)
 library(geojson)
 
 
-allData <- read_excel("Ladesaeulenkarte_neu.xlsx", 
+allData <- read_excel("Ladesaeulenkarte_v2.xlsx", 
                       col_types = c("text", "text", "text", 
                                     "text", "numeric", "numeric", "date", 
                                     "numeric", "text", "numeric", "text", 
@@ -44,29 +44,40 @@ shinyServer(function(input, output, session) {
   flaeche <- read_excel("Bundesland_flaeche.xlsx",
                         col_types = c("text", "numeric"))
   
-  year_start0 <- allData %>% filter(year <= 2020, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
-  year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
   
-  data_density <-reactive({
-    allData_Map %>%
-      filter(year <= input$Jahr2, Bundesland != 0) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  
+  year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
 
+
+  
+  bins <- c(0,1,2,5,8, 10, 15, 20,50,100,150, Inf)
+
+  #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
+
+
+
+
+  
+  year_start_test <- reactive({
+    allData %>% 
+      filter(year <= input$Jahr2, Bundesland != 0) %>% 
+      group_by(Bundesland) %>% 
+      summarize(total=sum(Ladepunkte))%>% 
+      group_by(Bundesland)
   })
   
-  years = sort(unique(allData_Map$year))
-  
-  updateSelectInput(session, "Jahr2", choices=years, selected="2008")
-  
-  bins <- c(0,1, 5,8, 10, 15, 20,50, 70,100,150, Inf)
-  pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
-
-  labels <- sprintf(
-    "<strong>%s</strong><br/>%g Ladestationen / 100 km<sup>2</sup>",
-    year_start0$Bundesland, year_start0$density
-  ) %>% lapply(htmltools::HTML)
+ 
   
   output$m <- renderLeaflet({
-    leaflet(year_start0) %>%
+    
+    pal <- colorBin("YlOrRd", domain = year_start_test()$total, bins = bins)
+    labels <- sprintf(
+    "<strong>%s</strong><br/>%g Ladepunkte / 100 km<sup>2</sup>",
+    year_start_test()$Bundesland, ceiling((year_start_test()$total/flaeche$qkm)*100)) %>% lapply(htmltools::HTML)
+
+    
+    leaflet(year_start_test()) %>%
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron", options = providerTileOptions(
@@ -74,7 +85,7 @@ shinyServer(function(input, output, session) {
         accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
       addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
                                  opacity = 1.0, fillOpacity = 0.5,
-                                 fillColor = ~pal(year_start0$density),
+                                 fillColor = ~pal(ceiling((year_start_test()$total/flaeche$qkm)*100)),
                                  highlight = highlightOptions(color = "white", weight = 2,
                                                                      bringToFront = TRUE),
                                  label = labels,
@@ -82,11 +93,16 @@ shinyServer(function(input, output, session) {
                                     style = list("font-weight" = "normal", padding = "3px 8px"),
                                     textsize = "15px",
                                     direction = "auto")) %>%
-      addLegend(pal = pal, values = ~density, opacity = 0.7, title = NULL,
+      addLegend(pal = pal, values = ~total/flaeche$qkm*100, opacity = 0.7, title = NULL,
                                             position = "bottomright")
   
   })
   
+  
+  
+ 
+
+
   
   
   
@@ -197,17 +213,7 @@ shinyServer(function(input, output, session) {
       ) %>%
       addProviderTiles("CartoDB.Positron") 
     
-    #addMarkers(
-    #   lng = ~Longitude, # note the tildes before values, required
-    #   lat = ~Latitude,
-    #   popup = ~paste(
-    #      Institution,
-    #      "<br>",
-    #      "Overall Satisfaction:",
-    #      Sat_2016,
-    #      "<br>"
-    #   )
-    #)
+
     
   })
   
