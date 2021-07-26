@@ -46,12 +46,12 @@ shinyServer(function(input, output, session) {
   
   
   
-  year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
-  year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
+  #year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  #year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
 
 
   
-  bins <- c(0,1,2,5,8, 10, 15, 20,50,100,150, Inf)
+  bins <- c(0,1,2,5, 10, 15, 20,50,100,150, Inf)
 
   #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
 
@@ -100,73 +100,62 @@ shinyServer(function(input, output, session) {
   
   
   
- 
-
-
+ #Dichtekarte pro Einwohner
+  
+  einwohner <- read_excel("Bundesland_einwohner.xlsx",
+                        col_types = c("text", "numeric"))
+  
+  
+  
+  #year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
+  #year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
+  
+  
+  
+  bins2 <- c(0,1,2,5, 10, 15, 20,50,100,150, Inf)
+  
+  #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
   
   
   
   
   
-   #Ladesäulenkarte
-  allData_Map <- allData[5:9]
-  allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
-  
-  yearstart <- (allData_Map %>%
-                  filter(year <= 2008) 
-  )
-  
-  data0 <-reactive({
-    allData_Map %>%
-      filter(year == input$Jahr)
+  year_einwohner <- reactive({
+    allData %>% 
+      filter(year <= input$Jahr2, Bundesland != 0) %>% 
+      group_by(Bundesland) %>% 
+      summarize(total=sum(Ladepunkte))%>% 
+      group_by(Bundesland)
   })
   
-  years = sort(unique(allData_Map$year))
   
-  updateSelectInput(session, "Jahr", choices=years, selected="2008")
-
-  pal1 <- colorFactor(
-    palette = c('darkgreen', 'lightblue'),
-    domain = allData_Map$Ladeeinrichtung
+  
+  output$map_einwohner <- renderLeaflet({
     
-  )
-  
-  output$map <- renderLeaflet({
-    leaflet(yearstart) %>%
+    pal <- colorBin("YlOrRd", domain = year_einwohner()$total, bins = bins2)
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%g Ladepunkte / 100.000 Einwohner<sup>2</sup>",
+      year_einwohner()$Bundesland, ceiling((year_einwohner()$total/einwohner$einwohner)*100000)) %>% lapply(htmltools::HTML)
+    
+    
+    leaflet(year_einwohner()) %>%
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
-      addProviderTiles("CartoDB.Positron") %>%
-      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal1(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
-    
-  })
-  
-  observe({
-    
-    leafletProxy("map", data = data0()) %>%
-      clearShapes() %>% 
-      clearPopups() %>% 
-      clearMarkers() %>%
-      addCircles(~Längengrad, 
-                 ~Breitengrad,
-                 radius = 40, 
-                 weight = 3, 
-                 color=~pal1(Ladeeinrichtung), 
-                 fillOpacity = 0.8
-      ) %>%
-      addProviderTiles("CartoDB.Positron") 
-    
-    #addMarkers(
-    #   lng = ~Longitude, # note the tildes before values, required
-    #   lat = ~Latitude,
-    #   popup = ~paste(
-    #      Institution,
-    #      "<br>",
-    #      "Overall Satisfaction:",
-    #      Sat_2016,
-    #      "<br>"
-    #   )
-    #)
+      addProviderTiles("CartoDB.Positron", options = providerTileOptions(
+        id = "mapbox.light",
+        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
+      addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
+                  opacity = 1.0, fillOpacity = 0.5,
+                  fillColor = ~pal(ceiling((year_einwohner()$total/einwohner$einwohner)*100000)),
+                  highlight = highlightOptions(color = "white", weight = 2,
+                                               bringToFront = TRUE),
+                  label = labels,
+                  labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                    textsize = "15px",
+                    direction = "auto")) %>%
+      addLegend(pal = pal, values = ~total/einwohner$einwohner*100000, opacity = 0.7, title = NULL,
+                position = "bottomright")
     
   })
   
@@ -178,7 +167,9 @@ shinyServer(function(input, output, session) {
       filter(year <= input$dateSel) 
   })
   
-  
+  yearstart <- (allData_Map %>%
+                  filter(year <= 2008) 
+  )
   
   pal1 <- colorFactor(
     palette = c('darkgreen', 'lightblue'),

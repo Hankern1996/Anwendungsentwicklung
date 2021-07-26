@@ -175,24 +175,16 @@ shinyUI(navbarPage(title = "eLectrify",
                               
                               mainPanel(
                                 
-                                leafletOutput("m")
-                                
+                                tabsetPanel(type = "tabs",
+                                            #tabPanel("Test", verbatimTextOutput("test")),
+                                            tabPanel("pro 100qkm",leafletOutput("m")),
+                                            tabPanel("pro Einwohner", leafletOutput("map_einwohner")))
+
                               )
                               
                             ),
                             
-                            sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
-                                           selectInput("Jahr", "Wähle ein Jahr", choices = NULL)
-                                           ),
-                              
-                              mainPanel(
-    
-                                            leafletOutput("map")
-
-                            )
-                            
-                   ),
+                      
                    
                    sidebarLayout(
                      sidebarPanel(
