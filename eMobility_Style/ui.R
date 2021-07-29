@@ -163,30 +163,28 @@ shinyUI(navbarPage(title = "eLectrify",
                             #includeHTML("scrollToTop.html"),
                             
                             sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
-                                           selectInput("Jahr2", "Wähle ein Jahr", choices = NULL)
+                              sidebarPanel(sliderInput("Jahr2", label = h4("Inbetriebnahme von Ladepunkten Entwicklung"),
+                                                       min = 2008,
+                                                       max = 2021,
+                                                       step = 1,
+                                                       value = 2008,
+                                                       format = "####",
+                                                       animate = animationOptions(interval = 2200, loop = FALSE)
+                              )
                               ),
                               
                               mainPanel(
                                 
-                                leafletOutput("m")
-                                
+                                tabsetPanel(type = "tabs",
+                                            #tabPanel("Test", verbatimTextOutput("test")),
+                                            tabPanel("pro 100qkm",leafletOutput("m")),
+                                            tabPanel("pro Einwohner", leafletOutput("map_einwohner")))
+
                               )
                               
                             ),
                             
-                            sidebarLayout(
-                              sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Jahr"),
-                                           selectInput("Jahr", "Wähle ein Jahr", choices = NULL)
-                                           ),
-                              
-                              mainPanel(
-    
-                                            leafletOutput("map")
-
-                            )
-                            
-                   ),
+                      
                    
                    sidebarLayout(
                      sidebarPanel(
@@ -195,7 +193,7 @@ shinyUI(navbarPage(title = "eLectrify",
                                               max = 2021,
                                               step = 1,
                                               value = 2007,
-                                              animate = animationOptions(interval = 2200, loop = FALSE)
+                                              animate = animationOptions(interval = 1700, loop = FALSE)
                                   )
                      ),
                      
