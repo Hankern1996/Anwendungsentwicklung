@@ -21,6 +21,9 @@ allData <- read_excel("Ladesaeulenkarte_neu.xlsx",
                                     "numeric", "text", "numeric", "text", 
                                     "text"))
 
+#zulassungen <- read.csv("Ladesaeulenkarte_neu.xlsx")
+data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
+                                col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
 
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -228,10 +231,12 @@ shinyServer(function(input, output, session) {
   
   output$orderNum1 <- renderText({
     paste("+",as.character(round(veraenderung())),"%")
+    # Durchschnittliche Hinzunahme von Ladepunkten pro Monat
   })
   
   output$orderNum2 <- renderText({
     paste("+",as.character(round(veraenderung())),"%")
+    # Steigung?
   })
   
   
