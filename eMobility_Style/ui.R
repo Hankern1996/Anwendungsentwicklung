@@ -161,13 +161,35 @@ shinyUI(navbarPage(title = "eLectrify",
                    # tab panel 2 - Ladesäulenkarte
                    tabPanel("Flächenabdeckung",
                             #includeHTML("scrollToTop.html"),
+                            fluidRow(
+                              #valueBox(value = "mean_mpg",
+                              #         subtitle = "mean of mpg",
+                              #         icon = "tachometer",
+                              #         color = "green"),
+                              #valueBox(value = "mean_mpg1",
+                              #         subtitle = "test",
+                              #         icon = "calendar",
+                              #         color = "blue"),
+                              infoBox(
+                                uiOutput("mapInfo"), "Deutschland pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
+                              ),
+                              infoBox(
+                                uiOutput("mapInfo1"), "Deutschland pro 1 Millionen Einwohner", icon = icon("credit-card")
+                              ),
+                              infoBox(
+                                uiOutput("mapInfo2"), "Deutschland total", icon = icon("credit-card")
+                              )
+                            ),
+                            
+                            
                             
                             sidebarLayout(
-                              sidebarPanel(sliderInput("Jahr2", label = h4("Inbetriebnahme von Ladepunkten Entwicklung"),
+                              sidebarPanel(sliderInput("Jahr2", label = h4("Entwicklung der öffentlich zugänglichen Ladeinfrastruktur: Inbetriebnahme neuer öffentlich zugänglicher Ladepunkte"),
                                                        min = 2008,
                                                        max = 2021,
                                                        step = 1,
                                                        value = 2008,
+                                                       sep ='',
                                                        format = "####",
                                                        animate = animationOptions(interval = 2200, loop = FALSE)
                               )
@@ -178,7 +200,8 @@ shinyUI(navbarPage(title = "eLectrify",
                                 tabsetPanel(type = "tabs",
                                             #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("pro 100qkm",leafletOutput("m")),
-                                            tabPanel("pro Einwohner", leafletOutput("map_einwohner")))
+                                            tabPanel("pro 100.000 Einwohner", leafletOutput("map_einwohner")),
+                                            tabPanel("total", leafletOutput("map2")))
 
                               )
                               
@@ -186,23 +209,7 @@ shinyUI(navbarPage(title = "eLectrify",
                             
                       
                    
-                   sidebarLayout(
-                     sidebarPanel(
-                                  sliderInput("dateSel", label = h4("Inbetriebnahme von Ladepunkten Entwicklung"),
-                                              min = 2007,
-                                              max = 2021,
-                                              step = 1,
-                                              value = 2007,
-                                              animate = animationOptions(interval = 1700, loop = FALSE)
-                                  )
-                     ),
-                     
-                     mainPanel(
-                       leafletOutput("map2") 
-                       
-                     )
-                     
-                   )
+                  
                    
                    ),
                    

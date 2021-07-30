@@ -33,6 +33,28 @@ list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 shinyServer(function(input, output, session) {
   
   #-------------------------------
+  # Veränderung: Hinzukommende Ladepunkte in Deutschland für die Kästchen
+  
+  deutschland_total <- reactive({
+    allData %>% 
+      filter(year <= input$Jahr2, Bundesland != 0) %>% 
+      summarize(total=sum(Ladepunkte))
+  })
+  
+  output$mapInfo <- renderText({
+    paste("+",as.character(round(deutschland_total()/357400*1000)))
+  })
+  
+  output$mapInfo1 <- renderText({
+    paste("+",as.character(round(deutschland_total()/83)))
+  })
+  
+  output$mapInfo2 <- renderText({
+    paste("+",as.character(round(deutschland_total())))
+  })
+  
+  
+  #-------------------------------
   
   #Dichtekarte:
   states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
@@ -68,6 +90,7 @@ shinyServer(function(input, output, session) {
   })
   
  
+
   
   output$m <- renderLeaflet({
     
@@ -164,7 +187,7 @@ shinyServer(function(input, output, session) {
   
   filteredData <- reactive({
     allData_Map %>%
-      filter(year <= input$dateSel) 
+      filter(year <= input$Jahr2) 
   })
   
   yearstart <- (allData_Map %>%
