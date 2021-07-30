@@ -112,7 +112,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  bins2 <- c(0,1,2,5, 10, 15, 20,50,100,150, Inf)
+  bins2 <- c(0,1,2,5, 10, 20,40,50, Inf)
   
   #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
   
