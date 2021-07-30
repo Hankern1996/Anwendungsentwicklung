@@ -229,14 +229,10 @@ shinyServer(function(input, output, session) {
       clearPopups() %>% 
       clearMarkers() %>%
       clearTiles() %>%
-      addCircles(~Längengrad, 
-                 ~Breitengrad,
-                 radius = 40, 
-                 weight = 3, 
-                 color=~pal1(Ladeeinrichtung), 
-                 fillOpacity = 0.8
-      ) %>%
-      
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", filteredData()$Ladeeinrichtung, "<br>",
+                                                              "Längengrad:", filteredData()$Längengrad, "<br>",
+                                                              "Breitengrad:", filteredData()$Breitengrad, "<br>"), weight = 1, radius=2, 
+                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
       
       addProviderTiles("CartoDB.Positron")
     
