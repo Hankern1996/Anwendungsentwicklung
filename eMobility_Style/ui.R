@@ -40,7 +40,19 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$link(rel = "icon", 
                                         type = "image/png", 
                                         href = "images/logo_icon_e.png")
-                            )
+                            ),
+                            
+                            fluidRow(column(width=2),
+                                     column(
+                                       
+                                       br(),
+                                       p("Mit rund 400.000 Neuzulassungen im Jahr 2020 befindet sich Deutschland im weltweiten Vergleich nach China auf dem zweiten Platz. Dies bedeutet eine Erhöhung um fast 300% gegenüber dem Vorjahr [1].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                                       br(),
+                                       
+                                       p("Der Bestand an E-Fahrzeugen kann bis zu den Jahren 2025 bzw. 2030 deutlich stärker ansteigen als heute angenommen – das zeigen vertrauliche Angaben der befragten Automobilhersteller. Bis zu 14,8 Millionen batterieelektrische E-Fahrzeuge und Plug-In-Hybride könnten 2030 in Deutschland zugelassen sein [2].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                                       
+                                       width=8))
+                            
                    ),
                    
                 
