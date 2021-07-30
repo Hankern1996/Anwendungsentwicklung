@@ -13,7 +13,7 @@ library(lubridate)
 library(geojson)
 
 
-allData <- read_excel("Ladesaeulenkarte_v2.xlsx", 
+allData <- read_excel("Ladesaeulenkarte_v3.xlsx", 
                       col_types = c("text", "text", "text", 
                                     "text", "numeric", "numeric", "date", 
                                     "numeric", "text", "numeric", "text", 
@@ -60,7 +60,7 @@ shinyServer(function(input, output, session) {
   states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
   class(states)
   
-  allData_Map <- allData[5:10]
+  allData_Map <- allData[1:10]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
   flaeche <- read_excel("Bundesland_flaeche.xlsx",
@@ -211,7 +211,8 @@ shinyServer(function(input, output, session) {
       addProviderTiles("CartoDB.Positron") %>%
       #addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
        #           color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) 
-      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Betreiber:", yearstart$Betreiber, "<br>",
+                                                              "Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
                                                               "Längengrad:", yearstart$Längengrad, "<br>",
                                                               "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
                      color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%

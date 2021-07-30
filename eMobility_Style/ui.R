@@ -212,7 +212,13 @@ shinyUI(navbarPage(title = "eLectrify",
                                             #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("pro 100qkm",leafletOutput("m")),
                                             tabPanel("pro 100.000 Einwohner", leafletOutput("map_einwohner")),
-                                            tabPanel("total", leafletOutput("map2")))
+                                            tabPanel("total", leafletOutput("map2"))),
+                                imageOutput("animatedplot")
+                                
+                                
+                                
+                                
+                
 
                               )
                               
@@ -235,7 +241,7 @@ shinyUI(navbarPage(title = "eLectrify",
                               ),
                               mainPanel(
                                 #textOutput("test")
-                                imageOutput("animatedplot")
+                                #imageOutput("animatedplot")
                                 #imageOutput("animatedplot2")
                               )
                             ),
