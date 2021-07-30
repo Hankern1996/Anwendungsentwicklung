@@ -195,10 +195,12 @@ shinyServer(function(input, output, session) {
   )
   
   pal1 <- colorFactor(
-    palette = c('darkred', 'yellow'),
+    palette = c('blue', 'yellow'),
     domain = allData_Map$Ladeeinrichtung
     
   )
+  
+  
   
   
   
@@ -207,8 +209,12 @@ shinyServer(function(input, output, session) {
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron") %>%
-      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) %>%
+      #addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+       #           color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) 
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
+                                                              "Längengrad:", yearstart$Längengrad, "<br>",
+                                                              "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
+                     color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
       addLegend(pal = pal1, values = ~Ladeeinrichtung, opacity = 0.7, title = NULL,
                 position = "bottomright") 
     
