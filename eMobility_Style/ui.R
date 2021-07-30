@@ -183,13 +183,13 @@ shinyUI(navbarPage(title = "eLectrify",
                               #         icon = "calendar",
                               #         color = "blue"),
                               infoBox(
-                                uiOutput("mapInfo"), "Deutschland pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
+                                uiOutput("mapInfo"), "pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
                               ),
                               infoBox(
-                                uiOutput("mapInfo1"), "Deutschland pro 1 Millionen Einwohner", icon = icon("credit-card")
+                                uiOutput("mapInfo1"), "pro 1 mil. Einwohner", icon = icon("credit-card")
                               ),
                               infoBox(
-                                uiOutput("mapInfo2"), "Deutschland total", icon = icon("credit-card")
+                                uiOutput("mapInfo2"), "Total", icon = icon("credit-card")
                               )
                             ),
                             
@@ -200,9 +200,8 @@ shinyUI(navbarPage(title = "eLectrify",
                                                        min = 2008,
                                                        max = 2021,
                                                        step = 1,
-                                                       value = 2008,
+                                                       value = 2021,
                                                        sep ='',
-                                                       format = "####",
                                                        animate = animationOptions(interval = 2200, loop = FALSE)
                               )
                               ),
@@ -274,7 +273,10 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$script(src = "plugins/holder.js"),
                               tags$style("#orderNum{font-size: 38px}"),
                               tags$style("#orderNum1{font-size: 38px}"),
-                              tags$style("#orderNum2{font-size: 38px}")
+                              tags$style("#orderNum2{font-size: 38px}"),
+                              tags$style("#mapInfo{font-size: 38px}"),
+                              tags$style("#mapInfo1{font-size: 38px}"),
+                              tags$style("#mapInfo2{font-size: 38px}")
                             ),
                             tags$style(type="text/css",
                                        ".shiny-output-error { visibility: hidden; }",

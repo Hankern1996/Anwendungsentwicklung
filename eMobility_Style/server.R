@@ -56,7 +56,7 @@ shinyServer(function(input, output, session) {
   
   #-------------------------------
   
-  #Dichtekarte:
+  #Dichtekarte pro qkm:
   states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
   class(states)
   
@@ -191,11 +191,11 @@ shinyServer(function(input, output, session) {
   })
   
   yearstart <- (allData_Map %>%
-                  filter(year <= 2008) 
+                  filter(year <= 2021, Ladeeinrichtung != 0) 
   )
   
   pal1 <- colorFactor(
-    palette = c('darkgreen', 'lightblue'),
+    palette = c('darkred', 'yellow'),
     domain = allData_Map$Ladeeinrichtung
     
   )
@@ -208,7 +208,11 @@ shinyServer(function(input, output, session) {
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron") %>%
       addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal1(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+                  color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) %>%
+      addLegend(pal = pal1, values = ~Ladeeinrichtung, opacity = 0.7, title = NULL,
+                position = "bottomright") 
+    
+    
     
   })
   
@@ -218,6 +222,7 @@ shinyServer(function(input, output, session) {
       clearShapes() %>% 
       clearPopups() %>% 
       clearMarkers() %>%
+      clearTiles() %>%
       addCircles(~Längengrad, 
                  ~Breitengrad,
                  radius = 40, 
@@ -225,7 +230,10 @@ shinyServer(function(input, output, session) {
                  color=~pal1(Ladeeinrichtung), 
                  fillOpacity = 0.8
       ) %>%
-      addProviderTiles("CartoDB.Positron") 
+      
+      
+      addProviderTiles("CartoDB.Positron")
+    
     
 
     
