@@ -86,7 +86,7 @@ shinyUI(navbarPage(title = "eLectrify",
                                                   #            ),
                                            dateRangeInput("input_date_range",
                                                           label="Zeitraum",
-                                                          start = "2020-01-01", 
+                                                          start = "2016-01-01", 
                                                           end = "2021-01-01",
                                                           min = "2008-07-01",
                                                           max = "2021-06-31",
@@ -114,9 +114,23 @@ shinyUI(navbarPage(title = "eLectrify",
                                             #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("Kumuliert", plotlyOutput("kumuliert")),
                                             tabPanel("Distinktiv", plotlyOutput("barplot")),
-                                            tabPanel("Data", tableOutput("datahead"))),
+                                            tabPanel("Erläuterung", textOutput("text_1"), 
+                                                     textOutput("text_2"), textOutput("text_3"))),
                               
                             )),
+                            
+                            sidebarLayout(
+                              sidebarPanel(
+                                checkboxGroupInput("jahr_zulassungen", "Jahr auswählen", c("2017" = "2017",
+                                                                                           "2018" = "2018",
+                                                                                           "2019" = "2019"), selected = "2019")
+                              ),
+                              mainPanel(
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Regressionsanalyse", plotlyOutput("zulassungen_plot")),
+                                            tabPanel("Erläuterung", textOutput("text_11"), textOutput("text_22"))
+                              )
+                            ))
                             
                             #sidebarLayout(
                             #  sidebarPanel(h4("Wachstum der Ladepunkten pro Bundesland"),
@@ -211,6 +225,8 @@ shinyUI(navbarPage(title = "eLectrify",
                    # tab panel 4 - About
                    tabPanel("Prognosen",
                             
+                            
+                            
                             sidebarLayout(
                               sidebarPanel(
                                 selectInput("animation_option","Ranking auswählen",choices=NULL)
@@ -255,14 +271,68 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$script(src = "plugins/holder.js"),
                               tags$style("#orderNum{font-size: 38px}"),
                               tags$style("#orderNum1{font-size: 38px}"),
-                              tags$style("#orderNum2{font-size: 38px}")
-                            ),
+                              tags$style("#orderNum2{font-size: 38px}"),
+                              tags$style("#text_1{font-size: 20px}"),
+                              tags$style("#text_2{font-size: 15px}"),
+                              tags$style("#text_11{font-size: 20px}"),
+                              tags$style("#text_22{font-size: 15px}")),
+                        
+                              tags$style(HTML("
+                    label > input[type='radio'] {
+                        opacity: 0;
+                        position: absolute;
+                    }
+                    label > input[type='radio'] + *::before {
+                        content: '';
+                        margin: 4px 0 0;
+                        width: 13px;
+                        height: 13px;
+                        position: absolute;
+                        margin-left: -20px;
+                        border-radius: 50%;
+                        border-style: solid;
+                        border-width: 0.1rem;
+                        border-color: #282828;
+                    }
+                    label > input[type='radio']:checked + *::before {
+                        background: radial-gradient(white 0%, white 30%, #282828 30%, #282828);
+                                border-color: #282828;
+                    }
+                    label > input[type='checkbox'] {
+                        opacity: 0;
+                        position: absolute;
+                    }
+                    label > input[type='checkbox'] + *::before {
+                      content: '';
+                      position: absolute;
+                      margin: 4px 0 0;
+                      margin-left: -20px;
+                      align: center;
+                      width: 13px;
+                      height: 13px;
+                      margin-right: 1rem;
+                      border-radius: 0%;
+                      border-style: solid;
+                      border-width: 0.1rem;
+                      border-color: #282828;
+                    }
+                    label > input[type='checkbox']:checked + *::before {
+                      content: '';
+                      width: 13px;
+                      height: 13px;
+                      background-color: #282828;
+                    }
+                  ")),
                             tags$style(type="text/css",
                                        ".shiny-output-error { visibility: hidden; }",
                                        ".shiny-output-error:before { visibility: hidden; }"
+                                       
+                                       
                                        #HTML(".fa{font-size: 24px;}")
                                        
                             )
+                            
+                            
                    )
                    
 ))

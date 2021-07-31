@@ -29,6 +29,10 @@ data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
 allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
 allData$Month <- floor_date(allData$Inbetriebnahmedatum, "month")
+#allData$year <- floor_date(allData$Inbetriebnahmedatum, "year")
+#data_zulassungen$Datum <- as.Date(data_zulassungen$Datum, "%Y/%m/%d")
+#data_zulassungen$year <- floor_date(data_zulassungen$Datum, "year")
+data_zulassungen$year <- format(as.Date(data_zulassungen$Datum, format="%Y-%m-%d"),"%Y")
 
 list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 
@@ -244,7 +248,7 @@ shinyServer(function(input, output, session) {
   
   data = reactive({
     d = allData %>%
-      filter(Bundesland == input$country) %>%
+      filter(Bundesland == input$country, Ladeeinrichtung!=0) %>%
       filter(Inbetriebnahmedatum >= input$input_date_range[1]) %>%
       filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
       group_by(Month, Ladeeinrichtung) %>%
@@ -255,16 +259,20 @@ shinyServer(function(input, output, session) {
   #Analysen Ladesäule pro Bundesland (Schnell- und Langsam)
   countries = sort(unique(allData$Bundesland))[-1]
   
-  updateSelectInput(session, "country", choices=countries, selected="Sachsen")
+  updateSelectInput(session, "country", choices=countries, selected="Baden-Württemberg")
   
   output$barplot <- renderPlotly({
     fig1 <- plot_ly(data = data(),x=~Month,y=~total,name =~Ladeeinrichtung, type="bar")
-    fig1<- fig1 %>% layout(legend = list(x = 0.1, y = 0.9), barmode="stack")
+    fig1<- fig1 %>% layout(legend = list(x = 0.1, y = 0.9), barmode="stack",
+                           title = '\nNeu installierte Ladepunkte\n',
+                           xaxis = list(title = 'Monat/Jahr',
+                                        zeroline = TRUE),
+                           yaxis = list(title = 'Anzahl Ladepunkte\n'))
   })
   
   data_kumuliert = reactive({
     d = allData %>%
-      filter(Bundesland == input$country) %>%
+      filter(Bundesland == input$country, Ladeeinrichtung!= 0) %>%
       filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
       group_by(Month, Ladeeinrichtung) %>% 
       summarise(total=sum(Ladepunkte)) %>%
@@ -275,7 +283,7 @@ shinyServer(function(input, output, session) {
  
   min_wert = reactive({
     d = allData %>%
-      filter(Bundesland == input$country) %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0) %>%
       filter(Inbetriebnahmedatum <= input$input_date_range[1]) %>%
       group_by(Month) %>% 
       summarise(total=sum(Ladepunkte)) %>%
@@ -287,7 +295,7 @@ shinyServer(function(input, output, session) {
   
   max_wert = reactive({
     d = allData %>%
-      filter(Bundesland == input$country) %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0) %>%
       filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
       group_by(Month) %>% 
       summarise(total=sum(Ladepunkte)) %>%
@@ -303,7 +311,19 @@ shinyServer(function(input, output, session) {
   
   output$kumuliert <- renderPlotly({
     fig <- plot_ly(data = data_kumuliert(),x=~Month,y=~total1,name =~Ladeeinrichtung, type="scatter", mode="lines")
-    fig %>% layout(legend = list(x = 0.1, y = 0.9))
+    fig %>% layout(legend = list(x = 0.1, y = 0.9),
+                   title = '\nSummer aller Ladepunkte\n',
+                   xaxis = list(title = 'Monat/Jahr',
+                                zeroline = TRUE),
+                   yaxis = list(title = 'Anzahl Ladepunkte\n'))
+  })
+  
+
+  
+  output$text_1 <- renderText({ "Hier steht eine Erläuterung"
+  })
+  
+  output$text_2 <- renderText({ "Hier steht noch eine Erläuterung"
   })
   
   #output$datahead <- renderTable({
@@ -376,6 +396,64 @@ shinyServer(function(input, output, session) {
   # --------------------------------------------
   # Animation
   # Preparation of data for animation of cities
+  
+  ladepunkte_aggr <- allData
+  ladepunkte_aggr$year <- floor_date(ladepunkte_aggr$Inbetriebnahmedatum, "year")
+  ladepunkte_aggr <- ladepunkte_aggr %>% filter(Bundesland != 0, year>"2016-01-01", year<"2020-01-01") %>%
+    group_by(Bundesland, year) %>%
+    summarise(total=sum(Ladepunkte))
+  
+  ladepunkte_aggr$year <- format(as.Date(ladepunkte_aggr$year, format="%Y-%m-%d"),"%Y")
+  
+  zulassungen <- select(data_zulassungen, year, Bundesland, Elektro, Elektro_BEV,Hybrid)
+  
+  df_merged <- merge(x = zulassungen, y = ladepunkte_aggr, by = c("year", "Bundesland") , all.x = TRUE)
+  df_merged <- df_merged %>% filter(Bundesland!="Sonstige")
+  names(df_merged) <- c("Jahr", "Bundesland", "Zulassung_BEV", "Elektro_BEV", "Hybrid", "Anzahl_Ladepunkte")
+  #df_merged$Jahr <- format(as.Date(df_merged$Jahr, format="%Y-%m-%d"),"%Y")
+  
+  data_merged = reactive({
+    d = df_merged %>%
+      filter(Jahr %in% input$jahr_zulassungen)
+  })
+  
+  #fit1 <- lm(total ~ Elektro, data = data_merged())
+  
+  #jahre = sort(unique(df_merged$year))[-1]
+  
+  #updateSelectInput(session, "jahr_zulassungen", choices=jahre)
+  
+ 
+  
+  output$zulassungen_plot <- renderPlotly({
+    
+    fit1 <- lm(Anzahl_Ladepunkte ~ Zulassung_BEV, data = data_merged())
+    
+    g <- ggplot(data_merged(), aes(x =Anzahl_Ladepunkte, y = Zulassung_BEV, colour=Jahr, label=Bundesland)) + 
+      geom_point() +
+      stat_smooth(method = "lm", col = "grey") +
+      #ggtitle("Verhältnis: Fahrzeugzulassungen & Ladepunkte\n") +
+      labs( 
+        #title = "Verhältnis: Fahrzeugzulassungen & Ladepunkte\n",
+           title  = paste("Adj R2 = ",signif(summary(fit1)$adj.r.squared, 5),
+                         ", Intercept =",signif(fit1$coef[[1]],5 ),
+                         ", Slope =",signif(fit1$coef[[2]], 5),
+                         ", P =",signif(summary(fit1)$coef[2,4], 5)),
+           x="Ladepunkte", y="Neuzulassungen") +
+      theme(legend.title = element_blank(), plot.title = element_text(size=8))
+  })
+ 
+  output$text_11 <- renderText({ "Hier steht eine Erläuterung"
+  })
+  
+  output$text_22 <- renderText({ "Hier steht noch eine Erläuterung"
+  })
+  
+  #output$zulassungen_plot <- renderPlotly({
+  #  plot_ly(data = df_merged, x = ~total, y = ~Elektro, type = "scatter", color= ~year, abline) +
+  #  abline(lm(total ~ Elektro))
+  #})
+  
   
   data2 <- allData %>%
     filter(year > 2010) %>%
