@@ -13,7 +13,7 @@ library(lubridate)
 library(geojson)
 
 
-allData <- read_excel("Ladesaeulenkarte_v2.xlsx", 
+allData <- read_excel("Ladesaeulenkarte_v3.xlsx", 
                       col_types = c("text", "text", "text", 
                                     "text", "numeric", "numeric", "date", 
                                     "numeric", "text", "numeric", "text", 
@@ -40,12 +40,34 @@ list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 shinyServer(function(input, output, session) {
   
   #-------------------------------
+  # Veränderung: Hinzukommende Ladepunkte in Deutschland für die Kästchen
   
-  #Dichtekarte:
+  deutschland_total <- reactive({
+    allData %>% 
+      filter(year <= input$Jahr2, Bundesland != 0) %>% 
+      summarize(total=sum(Ladepunkte))
+  })
+  
+  output$mapInfo <- renderText({
+    paste("+",as.character(round(deutschland_total()/357400*1000)))
+  })
+  
+  output$mapInfo1 <- renderText({
+    paste("+",as.character(round(deutschland_total()/83)))
+  })
+  
+  output$mapInfo2 <- renderText({
+    paste("+",as.character(round(deutschland_total())))
+  })
+  
+  
+  #-------------------------------
+  
+  #Dichtekarte pro qkm:
   states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
   class(states)
   
-  allData_Map <- allData[5:10]
+  allData_Map <- allData[1:10]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
   flaeche <- read_excel("Bundesland_flaeche.xlsx",
@@ -75,6 +97,7 @@ shinyServer(function(input, output, session) {
   })
   
  
+
   
   output$m <- renderLeaflet({
     
@@ -119,7 +142,7 @@ shinyServer(function(input, output, session) {
   
   
   
-  bins2 <- c(0,1,2,5, 10, 15, 20,50,100,150, Inf)
+  bins2 <- c(0,1,2,5, 10, 20,40,50, Inf)
   
   #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
   
@@ -171,18 +194,20 @@ shinyServer(function(input, output, session) {
   
   filteredData <- reactive({
     allData_Map %>%
-      filter(year <= input$dateSel) 
+      filter(year <= input$Jahr2) 
   })
   
   yearstart <- (allData_Map %>%
-                  filter(year <= 2008) 
+                  filter(year <= 2021, Ladeeinrichtung != 0) 
   )
   
   pal1 <- colorFactor(
-    palette = c('darkgreen', 'lightblue'),
+    palette = c('blue', 'yellow'),
     domain = allData_Map$Ladeeinrichtung
     
   )
+  
+  
   
   
   
@@ -191,8 +216,17 @@ shinyServer(function(input, output, session) {
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron") %>%
-      addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-                  color=~pal1(Ladeeinrichtung), stroke = TRUE, fillOpacity = 0.8)
+      #addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
+       #           color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) 
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Betreiber:", yearstart$Betreiber, "<br>",
+                                                              "Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
+                                                              "Längengrad:", yearstart$Längengrad, "<br>",
+                                                              "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
+                     color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
+      addLegend(pal = pal1, values = ~Ladeeinrichtung, opacity = 0.7, title = NULL,
+                position = "bottomright") 
+    
+    
     
   })
   
@@ -202,14 +236,14 @@ shinyServer(function(input, output, session) {
       clearShapes() %>% 
       clearPopups() %>% 
       clearMarkers() %>%
-      addCircles(~Längengrad, 
-                 ~Breitengrad,
-                 radius = 40, 
-                 weight = 3, 
-                 color=~pal1(Ladeeinrichtung), 
-                 fillOpacity = 0.8
-      ) %>%
-      addProviderTiles("CartoDB.Positron") 
+      clearTiles() %>%
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", filteredData()$Ladeeinrichtung, "<br>",
+                                                              "Längengrad:", filteredData()$Längengrad, "<br>",
+                                                              "Breitengrad:", filteredData()$Breitengrad, "<br>"), weight = 1, radius=2, 
+                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
+      
+      addProviderTiles("CartoDB.Positron")
+    
     
 
     

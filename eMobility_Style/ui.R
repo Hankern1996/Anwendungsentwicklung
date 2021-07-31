@@ -40,7 +40,19 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$link(rel = "icon", 
                                         type = "image/png", 
                                         href = "images/logo_icon_e.png")
-                            )
+                            ),
+                            
+                            fluidRow(column(width=2),
+                                     column(
+                                       
+                                       br(),
+                                       p("Mit rund 400.000 Neuzulassungen im Jahr 2020 befindet sich Deutschland im weltweiten Vergleich nach China auf dem zweiten Platz. Dies bedeutet eine Erhöhung um fast 300% gegenüber dem Vorjahr [1].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                                       br(),
+                                       
+                                       p("Der Bestand an E-Fahrzeugen kann bis zu den Jahren 2025 bzw. 2030 deutlich stärker ansteigen als heute angenommen – das zeigen vertrauliche Angaben der befragten Automobilhersteller. Bis zu 14,8 Millionen batterieelektrische E-Fahrzeuge und Plug-In-Hybride könnten 2030 in Deutschland zugelassen sein [2].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                                       
+                                       width=8))
+                            
                    ),
                    
                 
@@ -175,14 +187,35 @@ shinyUI(navbarPage(title = "eLectrify",
                    # tab panel 2 - Ladesäulenkarte
                    tabPanel("Flächenabdeckung",
                             #includeHTML("scrollToTop.html"),
+                            fluidRow(
+                              #valueBox(value = "mean_mpg",
+                              #         subtitle = "mean of mpg",
+                              #         icon = "tachometer",
+                              #         color = "green"),
+                              #valueBox(value = "mean_mpg1",
+                              #         subtitle = "test",
+                              #         icon = "calendar",
+                              #         color = "blue"),
+                              infoBox(
+                                uiOutput("mapInfo"), "pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
+                              ),
+                              infoBox(
+                                uiOutput("mapInfo1"), "pro 1 mil. Einwohner", icon = icon("credit-card")
+                              ),
+                              infoBox(
+                                uiOutput("mapInfo2"), "Total", icon = icon("credit-card")
+                              )
+                            ),
+                            
+                            
                             
                             sidebarLayout(
-                              sidebarPanel(sliderInput("Jahr2", label = h4("Inbetriebnahme von Ladepunkten Entwicklung"),
+                              sidebarPanel(sliderInput("Jahr2", label = h4("Entwicklung der öffentlich zugänglichen Ladeinfrastruktur: Inbetriebnahme neuer öffentlich zugänglicher Ladepunkte"),
                                                        min = 2008,
                                                        max = 2021,
                                                        step = 1,
-                                                       value = 2008,
-                                                       format = "####",
+                                                       value = 2021,
+                                                       sep ='',
                                                        animate = animationOptions(interval = 2200, loop = FALSE)
                               )
                               ),
@@ -192,7 +225,14 @@ shinyUI(navbarPage(title = "eLectrify",
                                 tabsetPanel(type = "tabs",
                                             #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("pro 100qkm",leafletOutput("m")),
-                                            tabPanel("pro Einwohner", leafletOutput("map_einwohner")))
+                                            tabPanel("pro 100.000 Einwohner", leafletOutput("map_einwohner")),
+                                            tabPanel("total", leafletOutput("map2"))),
+                                imageOutput("animatedplot")
+                                
+                                
+                                
+                                
+                
 
                               )
                               
@@ -200,23 +240,7 @@ shinyUI(navbarPage(title = "eLectrify",
                             
                       
                    
-                   sidebarLayout(
-                     sidebarPanel(
-                                  sliderInput("dateSel", label = h4("Inbetriebnahme von Ladepunkten Entwicklung"),
-                                              min = 2007,
-                                              max = 2021,
-                                              step = 1,
-                                              value = 2007,
-                                              animate = animationOptions(interval = 1700, loop = FALSE)
-                                  )
-                     ),
-                     
-                     mainPanel(
-                       leafletOutput("map2") 
-                       
-                     )
-                     
-                   )
+                  
                    
                    ),
                    
@@ -233,7 +257,7 @@ shinyUI(navbarPage(title = "eLectrify",
                               ),
                               mainPanel(
                                 #textOutput("test")
-                                imageOutput("animatedplot")
+                                #imageOutput("animatedplot")
                                 #imageOutput("animatedplot2")
                               )
                             ),
@@ -272,6 +296,7 @@ shinyUI(navbarPage(title = "eLectrify",
                               tags$style("#orderNum{font-size: 38px}"),
                               tags$style("#orderNum1{font-size: 38px}"),
                               tags$style("#orderNum2{font-size: 38px}"),
+<<<<<<< HEAD
                               tags$style("#text_1{font-size: 20px}"),
                               tags$style("#text_2{font-size: 15px}"),
                               tags$style("#text_11{font-size: 20px}"),
@@ -323,6 +348,12 @@ shinyUI(navbarPage(title = "eLectrify",
                       background-color: #282828;
                     }
                   ")),
+=======
+                              tags$style("#mapInfo{font-size: 38px}"),
+                              tags$style("#mapInfo1{font-size: 38px}"),
+                              tags$style("#mapInfo2{font-size: 38px}")
+                            ),
+>>>>>>> 888d2a2543f7d8eb8589e50b915d66d1217658c1
                             tags$style(type="text/css",
                                        ".shiny-output-error { visibility: hidden; }",
                                        ".shiny-output-error:before { visibility: hidden; }"
