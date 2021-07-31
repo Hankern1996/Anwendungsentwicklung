@@ -240,7 +240,7 @@ shinyUI(navbarPage(title = "eLectrify",
                    ),
                    
                    
-                   tabPanel("Bezug Ladepunkt & Neuzulassungen",
+                   tabPanel("Ladepunkte & Neuzulassungen",
                             fluidRow(
                               sidebarLayout(
                                 sidebarPanel(
