@@ -264,14 +264,45 @@ shinyServer(function(input, output, session) {
     paste("+",as.character(round(veraenderung())),"%")
   })
   
+
   output$orderNum1 <- renderText({
     paste("+",as.character(round(veraenderung())),"%")
+    
     # Durchschnittliche Hinzunahme von Ladepunkten pro Monat
   })
   
   output$orderNum2 <- renderText({
     paste("+",as.character(round(veraenderung())),"%")
-    # Steigung?
+    # Verhältnis Schnell/Langsam 
+  })
+  
+  
+  min_wert_1 = reactive({
+    d = allData %>%
+      filter(Bundesland == "Baden-Württemberg", Ladeeinrichtung != 0) %>%
+      filter(Inbetriebnahmedatum <= "2016-01-01") %>%
+      group_by(Month) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      arrange(desc(Month)) %>%
+      slice(0:1) %>%
+      select(total1)
+  })
+  
+  max_wert_1 = reactive({
+    d = allData %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0) %>%
+      filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
+      group_by(Month) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      arrange(desc(Month)) %>%
+      slice(0:1) %>%
+      select(total1)
+  })
+  
+  veraenderung1 = reactive({
+    ((max_wert1() - min_wert1())/min_wert1())*100
   })
   
   

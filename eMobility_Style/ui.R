@@ -42,16 +42,16 @@ shinyUI(navbarPage(title = "eLectrify",
                                         href = "images/logo_icon_e.png")
                             ),
                             
-                            fluidRow(column(width=2),
-                                     column(
-                                       
-                                       br(),
-                                       p("Mit rund 400.000 Neuzulassungen im Jahr 2020 befindet sich Deutschland im weltweiten Vergleich nach China auf dem zweiten Platz. Dies bedeutet eine Erhöhung um fast 300% gegenüber dem Vorjahr [1].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
-                                       br(),
-                                       
-                                       p("Der Bestand an E-Fahrzeugen kann bis zu den Jahren 2025 bzw. 2030 deutlich stärker ansteigen als heute angenommen – das zeigen vertrauliche Angaben der befragten Automobilhersteller. Bis zu 14,8 Millionen batterieelektrische E-Fahrzeuge und Plug-In-Hybride könnten 2030 in Deutschland zugelassen sein [2].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
-                                       
-                                       width=8))
+                            #fluidRow(column(width=2),
+                             #        column(
+                            #           
+                            #           br(),
+                            #           p("Mit rund 400.000 Neuzulassungen im Jahr 2020 befindet sich Deutschland im weltweiten Vergleich nach China auf dem zweiten Platz. Dies bedeutet eine Erhöhung um fast 300% gegenüber dem Vorjahr [1].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                            #           br(),
+                            #           
+                            #           p("Der Bestand an E-Fahrzeugen kann bis zu den Jahren 2025 bzw. 2030 deutlich stärker ansteigen als heute angenommen – das zeigen vertrauliche Angaben der befragten Automobilhersteller. Bis zu 14,8 Millionen batterieelektrische E-Fahrzeuge und Plug-In-Hybride könnten 2030 in Deutschland zugelassen sein [2].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
+                            #           
+                            #           width=8))
                             
                    ),
                    
@@ -129,20 +129,11 @@ shinyUI(navbarPage(title = "eLectrify",
                                             tabPanel("Erläuterung", textOutput("text_1"), 
                                                      textOutput("text_2"), textOutput("text_3"))),
                               
-                            )),
-                            
-                            sidebarLayout(
-                              sidebarPanel(
-                                checkboxGroupInput("jahr_zulassungen", "Jahr auswählen", c("2017" = "2017",
-                                                                                           "2018" = "2018",
-                                                                                           "2019" = "2019"), selected = "2019")
-                              ),
-                              mainPanel(
-                                tabsetPanel(type = "tabs",
-                                            tabPanel("Regressionsanalyse", plotlyOutput("zulassungen_plot")),
-                                            tabPanel("Erläuterung", textOutput("text_11"), textOutput("text_22"))
-                              )
                             ))
+                            
+                            
+                            
+                            
                             
                             #sidebarLayout(
                             #  sidebarPanel(h4("Wachstum der Ladepunkten pro Bundesland"),
@@ -197,20 +188,24 @@ shinyUI(navbarPage(title = "eLectrify",
                               #         icon = "calendar",
                               #         color = "blue"),
                               infoBox(
-                                uiOutput("mapInfo"), "pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
+                                uiOutput("mapInfo"), "Pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
                               ),
+                              
+                              #Summe Ladepunkte
                               infoBox(
-                                uiOutput("mapInfo1"), "pro 1 mil. Einwohner", icon = icon("credit-card")
+                                uiOutput("mapInfo1"), "Pro 1 Mio Einwohner", icon = icon("credit-card")
                               ),
+                              
+                              #Verhältnis Schnell / Normal 
                               infoBox(
-                                uiOutput("mapInfo2"), "Total", icon = icon("credit-card")
+                                uiOutput("mapInfo2"), "Deutschlandweit", icon = icon("credit-card")
                               )
                             ),
                             
                             
                             
                             sidebarLayout(
-                              sidebarPanel(sliderInput("Jahr2", label = h4("Entwicklung der öffentlich zugänglichen Ladeinfrastruktur: Inbetriebnahme neuer öffentlich zugänglicher Ladepunkte"),
+                              sidebarPanel(sliderInput("Jahr2", label = h4("Entwicklung der Inbetriebnahme öffentlich zugänglichen Ladepunkte"),
                                                        min = 2008,
                                                        max = 2021,
                                                        step = 1,
@@ -245,22 +240,38 @@ shinyUI(navbarPage(title = "eLectrify",
                    ),
                    
                    
+                   tabPanel("Bezug Ladepunkt & Neuzulassungen",
+                            fluidRow(
+                              sidebarLayout(
+                                sidebarPanel(
+                                  checkboxGroupInput("jahr_zulassungen", "Jahr auswählen", c("2017" = "2017",
+                                                                                             "2018" = "2018",
+                                                                                             "2019" = "2019"), selected = "2019")
+                                ),
+                                mainPanel(
+                                  tabsetPanel(type = "tabs",
+                                              tabPanel("Regressionsanalyse", plotlyOutput("zulassungen_plot")),
+                                              tabPanel("Erläuterung", textOutput("text_11"), textOutput("text_22"))
+                                  )
+                                ))
+                            )),
+                   
                    
                    # tab panel 4 - About
                    tabPanel("Prognosen",
                             
                             
                             
-                            sidebarLayout(
-                              sidebarPanel(
-                                selectInput("animation_option","Ranking auswählen",choices=NULL)
-                              ),
-                              mainPanel(
+                            #sidebarLayout(
+                            #  sidebarPanel(
+                            #    selectInput("animation_option","Ranking auswählen",choices=NULL)
+                            #  ),
+                            #  mainPanel(
                                 #textOutput("test")
                                 #imageOutput("animatedplot")
                                 #imageOutput("animatedplot2")
-                              )
-                            ),
+                             # )
+                            #),
                             
                             
                             sidebarLayout(
@@ -293,10 +304,9 @@ shinyUI(navbarPage(title = "eLectrify",
                                         type = "text/css", 
                                         href = "plugins/carousel.css"),
                               tags$script(src = "plugins/holder.js"),
-                              tags$style("#orderNum{font-size: 38px}"),
-                              tags$style("#orderNum1{font-size: 38px}"),
-                              tags$style("#orderNum2{font-size: 38px}"),
-<<<<<<< HEAD
+                              tags$style("#orderNum{font-size: 37px}"),
+                              tags$style("#orderNum1{font-size: 37px}"),
+                              tags$style("#orderNum2{font-size: 37px}"),
                               tags$style("#text_1{font-size: 20px}"),
                               tags$style("#text_2{font-size: 15px}"),
                               tags$style("#text_11{font-size: 20px}"),
@@ -348,12 +358,11 @@ shinyUI(navbarPage(title = "eLectrify",
                       background-color: #282828;
                     }
                   ")),
-=======
-                              tags$style("#mapInfo{font-size: 38px}"),
-                              tags$style("#mapInfo1{font-size: 38px}"),
-                              tags$style("#mapInfo2{font-size: 38px}")
+                              tags$style("#mapInfo{font-size: 37px}"),
+                              tags$style("#mapInfo1{font-size: 37px}"),
+                              tags$style("#mapInfo2{font-size: 37px}")
                             ),
->>>>>>> 888d2a2543f7d8eb8589e50b915d66d1217658c1
+
                             tags$style(type="text/css",
                                        ".shiny-output-error { visibility: hidden; }",
                                        ".shiny-output-error:before { visibility: hidden; }"
@@ -366,4 +375,4 @@ shinyUI(navbarPage(title = "eLectrify",
                             
                    )
                    
-))
+)
