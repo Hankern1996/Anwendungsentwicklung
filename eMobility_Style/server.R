@@ -11,6 +11,7 @@ library(directlabels)
 library(forecast)
 library(lubridate)
 library(geojson)
+library(prophet)
 
 
 allData <- read_excel("Ladesaeulenkarte_v3.xlsx", 
@@ -24,6 +25,7 @@ allData <- read_excel("Ladesaeulenkarte_v3.xlsx",
 #zulassungen <- read.csv("Ladesaeulenkarte_neu.xlsx")
 data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
                                 col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
+
 
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -130,6 +132,11 @@ shinyServer(function(input, output, session) {
   
   
   
+  
+  
+  
+  
+  
  #Dichtekarte pro Einwohner
   
   einwohner <- read_excel("Bundesland_einwohner.xlsx",
@@ -215,16 +222,7 @@ shinyServer(function(input, output, session) {
     leaflet(yearstart) %>%
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
-      addProviderTiles("CartoDB.Positron") %>%
-      #addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-       #           color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) 
-      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Betreiber:", yearstart$Betreiber, "<br>",
-                                                              "Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
-                                                              "Längengrad:", yearstart$Längengrad, "<br>",
-                                                              "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
-                     color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
-      addLegend(pal = pal1, values = ~Ladeeinrichtung, opacity = 0.7, title = NULL,
-                position = "bottomright") 
+      addProviderTiles("CartoDB.Positron") 
     
     
     
@@ -236,18 +234,38 @@ shinyServer(function(input, output, session) {
       clearShapes() %>% 
       clearPopups() %>% 
       clearMarkers() %>%
-      clearTiles() %>%
       addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", filteredData()$Ladeeinrichtung, "<br>",
                                                               "Längengrad:", filteredData()$Längengrad, "<br>",
                                                               "Breitengrad:", filteredData()$Breitengrad, "<br>"), weight = 1, radius=2, 
-                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
+                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) 
       
-      addProviderTiles("CartoDB.Positron")
-    
+
     
 
     
   })
+
+  #Forecasting mit Prophet
+  
+  filtered <- reactive({
+    allData_Map %>%
+      filter(year <= input$Jahr2) 
+  })
+  
+    
+    output$forecast <- renderPlot({
+      
+      forecast_df <- read_excel("Prediction_Test.xlsx",col_types = c("date","numeric", "numeric"))
+      forecasting_data <- forecast_df[c(1,3)]
+      
+      m <- prophet(forecasting_data, daily.seasonality=TRUE) 
+      future <- make_future_dataframe(m, periods = 365) 
+      predict(m, future)
+      plot(m, forecast)
+      
+    })
+    
+   
   
   #------------------------
   #Analyse_pro_Bundesland   

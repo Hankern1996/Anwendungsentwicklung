@@ -240,7 +240,7 @@ shinyUI(navbarPage(title = "eLectrify",
                    ),
                    
                    
-                   tabPanel("Ladepunkte & Neuzulassungen",
+                   tabPanel("Ladepunkt & Neuzulassungen",
                             fluidRow(
                               sidebarLayout(
                                 sidebarPanel(
@@ -279,8 +279,11 @@ shinyUI(navbarPage(title = "eLectrify",
                                 selectInput("country_zeit1", "Bundesland auswählen", choices = NULL)
                               ),
                               mainPanel(
-                                #textOutput("test")
-                                imageOutput("lineplot1")
+                                
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Entwicklung bis Mitte 2021", imageOutput("lineplot1")),
+                                            tabPanel("Ausblick in die Zukunft", plotOutput("plotprophet")))
+                                
                               )
                             ),
                             
