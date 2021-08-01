@@ -319,6 +319,18 @@ shinyServer(function(input, output, session) {
       
     })
     
+    output$forecast_total <- renderImage({
+      list(
+        src = "www/images/forecast.jpg",
+        filetype = "image",
+        width = 590,
+        height = 400,
+        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft"
+      )
+      
+    }) 
+      
+    
    
   
   #------------------------

@@ -282,7 +282,7 @@ shinyUI(navbarPage(title = "eLectrify",
                                 
                                 tabsetPanel(type = "tabs",
                                             tabPanel("Entwicklung bis Mitte 2021", imageOutput("lineplot1")),
-                                            tabPanel("Ausblick in die Zukunft", plotOutput("plotprophet")))
+                                            tabPanel("Ausblick in die Zukunft", imageOutput("forecast_total")))
                                 
                               )
                             ),
