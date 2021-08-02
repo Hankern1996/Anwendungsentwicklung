@@ -19,7 +19,7 @@ library(shinyWidgets)
 
 
 # Define UI for application that draws a histogram
-shinyUI(navbarPage(title = "eLectrify",
+shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                    theme = "style/style.css",
                    footer = includeHTML("footer.html"),
                    fluid = TRUE, 
