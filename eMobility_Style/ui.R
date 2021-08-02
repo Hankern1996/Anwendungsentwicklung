@@ -240,7 +240,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                    ),
                    
                    
-                   tabPanel("Bezug Ladepunkt & Neuzulassungen",
+                   tabPanel("Ladepunkt & Neuzulassungen",
                             fluidRow(
                               sidebarLayout(
                                 sidebarPanel(
@@ -279,8 +279,11 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                 selectInput("country_zeit1", "Bundesland auswählen", choices = NULL)
                               ),
                               mainPanel(
-                                #textOutput("test")
-                                imageOutput("lineplot1")
+                                
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Entwicklung bis Mitte 2021", imageOutput("lineplot1")),
+                                            tabPanel("Ausblick in die Zukunft", imageOutput("forecast_total")))
+                                
                               )
                             ),
                             

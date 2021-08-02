@@ -11,6 +11,7 @@ library(directlabels)
 library(forecast)
 library(lubridate)
 library(geojson)
+library(prophet)
 
 
 allData <- read_excel("Ladesaeulenkarte_v3.xlsx", 
@@ -24,6 +25,7 @@ allData <- read_excel("Ladesaeulenkarte_v3.xlsx",
 #zulassungen <- read.csv("Ladesaeulenkarte_neu.xlsx")
 data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
                                 col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
+
 
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -96,37 +98,69 @@ shinyServer(function(input, output, session) {
       group_by(Bundesland)
   })
   
- 
-
+  year_start_test0 <- (
+    allData %>% 
+      filter(year <= 2021, Bundesland != 0) %>% 
+      group_by(Bundesland) %>% 
+      summarize(total=sum(Ladepunkte))%>% 
+      group_by(Bundesland)
+  )
+  
   
   output$m <- renderLeaflet({
     
-    pal <- colorBin("YlOrRd", domain = year_start_test()$total, bins = bins)
+    pal <- colorBin("YlOrRd", domain = year_start_test0$total, bins = bins)
     labels <- sprintf(
-    "<strong>%s</strong><br/>%g Ladepunkte / 100 km<sup>2</sup>",
-    year_start_test()$Bundesland, ceiling((year_start_test()$total/flaeche$qkm)*100)) %>% lapply(htmltools::HTML)
-
+      "<strong>%s</strong><br/>%g Ladepunkte / 100 km<sup>2</sup>",
+      year_start_test0$Bundesland, ceiling((year_start_test0$total/flaeche$qkm)*100)) %>% lapply(htmltools::HTML)
     
-    leaflet(year_start_test()) %>%
+    leaflet(year_einwohner0) %>%
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
       addProviderTiles("CartoDB.Positron", options = providerTileOptions(
         id = "mapbox.light",
-        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
+        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))%>%
       addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
-                                 opacity = 1.0, fillOpacity = 0.5,
-                                 fillColor = ~pal(ceiling((year_start_test()$total/flaeche$qkm)*100)),
-                                 highlight = highlightOptions(color = "white", weight = 2,
-                                                                     bringToFront = TRUE),
-                                 label = labels,
-                                 labelOptions = labelOptions(
-                                    style = list("font-weight" = "normal", padding = "3px 8px"),
-                                    textsize = "15px",
-                                    direction = "auto")) %>%
+                  opacity = 1.0, fillOpacity = 0.5,
+                  fillColor = ~pal(ceiling((year_start_test0$total/flaeche$qkm)*100)),
+                  highlight = highlightOptions(color = "white", weight = 2,
+                                               bringToFront = TRUE),
+                  label = labels,
+                  labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                    textsize = "15px",
+                    direction = "auto")) %>%
       addLegend(pal = pal, values = ~total/flaeche$qkm*100, opacity = 0.7, title = NULL,
-                                            position = "bottomright")
-  
+                position = "bottomright")    
   })
+  
+  
+  observe({
+    
+    pal <- colorBin("YlOrRd", domain = year_start_test()$total, bins = bins)
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%g Ladepunkte / 100 km<sup>2</sup>",
+      year_start_test()$Bundesland, ceiling((year_start_test()$total/flaeche$qkm)*100)) %>% lapply(htmltools::HTML)
+    
+    leafletProxy("m", data = year_start_test()) %>%
+      clearShapes() %>% 
+      clearPopups() %>% 
+      clearMarkers()%>% 
+      addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
+                  opacity = 1.0, fillOpacity = 0.5,
+                  fillColor = ~pal(ceiling((year_start_test()$total/flaeche$qkm)*100)),
+                  highlight = highlightOptions(color = "white", weight = 2,
+                                               bringToFront = TRUE),
+                  label = labels,
+                  labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                    textsize = "15px",
+                    direction = "auto")) 
+    
+  })
+  
+ 
+
   
   
   
@@ -158,22 +192,52 @@ shinyServer(function(input, output, session) {
       group_by(Bundesland)
   })
   
-  
+  year_einwohner0 <- (
+    allData %>% 
+      filter(year <= 2021, Bundesland != 0) %>% 
+      group_by(Bundesland) %>% 
+      summarize(total=sum(Ladepunkte))%>% 
+      group_by(Bundesland)
+  )
   
   output$map_einwohner <- renderLeaflet({
+    
+    pal <- colorBin("YlOrRd", domain = year_einwohner0$total, bins = bins2)
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%g Ladepunkte / 100.000 Einwohner<sup>2</sup>",
+      year_einwohner0$Bundesland, ceiling((year_einwohner0$total/einwohner$einwohner)*100000)) %>% lapply(htmltools::HTML)
+    
+    leaflet(year_einwohner0) %>%
+      addTiles() %>% 
+      setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
+      addProviderTiles("CartoDB.Positron", options = providerTileOptions(
+        id = "mapbox.light",
+        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))%>%
+      addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
+                  opacity = 1.0, fillOpacity = 0.5,
+                  fillColor = ~pal(ceiling((year_einwohner0$total/einwohner$einwohner)*100000)),
+                  highlight = highlightOptions(color = "white", weight = 2,
+                                               bringToFront = TRUE),
+                  label = labels,
+                  labelOptions = labelOptions(
+                    style = list("font-weight" = "normal", padding = "3px 8px"),
+                    textsize = "15px",
+                    direction = "auto")) %>%
+      addLegend(pal = pal, values = ~total/einwohner$einwohner*100000, opacity = 0.7, title = NULL,
+                position = "bottomright")    
+  })
+  
+  observe({
     
     pal <- colorBin("YlOrRd", domain = year_einwohner()$total, bins = bins2)
     labels <- sprintf(
       "<strong>%s</strong><br/>%g Ladepunkte / 100.000 Einwohner<sup>2</sup>",
       year_einwohner()$Bundesland, ceiling((year_einwohner()$total/einwohner$einwohner)*100000)) %>% lapply(htmltools::HTML)
     
-    
-    leaflet(year_einwohner()) %>%
-      addTiles() %>% 
-      setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
-      addProviderTiles("CartoDB.Positron", options = providerTileOptions(
-        id = "mapbox.light",
-        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
+    leafletProxy("map_einwohner", data = year_einwohner()) %>%
+      clearShapes() %>% 
+      clearPopups() %>% 
+      clearMarkers() %>%
       addPolygons(data = states, color = "#444444", weight = 1, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity = 0.5,
                   fillColor = ~pal(ceiling((year_einwohner()$total/einwohner$einwohner)*100000)),
@@ -183,11 +247,12 @@ shinyServer(function(input, output, session) {
                   labelOptions = labelOptions(
                     style = list("font-weight" = "normal", padding = "3px 8px"),
                     textsize = "15px",
-                    direction = "auto")) %>%
-      addLegend(pal = pal, values = ~total/einwohner$einwohner*100000, opacity = 0.7, title = NULL,
-                position = "bottomright")
+                    direction = "auto"))
     
   })
+  
+  
+
   
   
   #zweite Map mit Slider
@@ -206,27 +271,17 @@ shinyServer(function(input, output, session) {
     domain = allData_Map$Ladeeinrichtung
     
   )
-  
-  
-  
-  
+
   
   output$map2 <- renderLeaflet({
     leaflet(yearstart) %>%
       addTiles() %>% 
       setView(lng = 10.4515,lat = 51.1657, zoom = 5)  %>% 
-      addProviderTiles("CartoDB.Positron") %>%
-      #addCircles( ~Längengrad, ~Breitengrad, weight = 3, radius=40, 
-       #           color=~pal1(Ladeeinrichtung), stroke = TRUE , fillOpacity = 0.8) 
-      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Betreiber:", yearstart$Betreiber, "<br>",
-                                                              "Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
-                                                              "Längengrad:", yearstart$Längengrad, "<br>",
-                                                              "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
-                     color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
-      addLegend(pal = pal1, values = ~Ladeeinrichtung, opacity = 0.7, title = NULL,
-                position = "bottomright") 
-    
-    
+      addProviderTiles("CartoDB.Positron")  %>%
+      addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", yearstart$Ladeeinrichtung, "<br>",
+                                                            "Längengrad:", yearstart$Längengrad, "<br>",
+                                                            "Breitengrad:", yearstart$Breitengrad, "<br>"), weight = 1, radius=2, 
+                     color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) 
     
   })
   
@@ -236,18 +291,48 @@ shinyServer(function(input, output, session) {
       clearShapes() %>% 
       clearPopups() %>% 
       clearMarkers() %>%
-      clearTiles() %>%
       addCircleMarkers(~Längengrad, ~Breitengrad, popup=paste("Ladeeinrichtung:", filteredData()$Ladeeinrichtung, "<br>",
                                                               "Längengrad:", filteredData()$Längengrad, "<br>",
                                                               "Breitengrad:", filteredData()$Breitengrad, "<br>"), weight = 1, radius=2, 
-                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) %>%
+                       color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) 
       
-      addProviderTiles("CartoDB.Positron")
-    
-    
-
-    
   })
+#------
+  
+  #Forecasting mit Prophet
+  
+  filtered <- reactive({
+    allData_Map %>%
+      filter(year <= input$Jahr2) 
+  })
+  
+    
+    output$forecast <- renderPlot({
+      
+      forecast_df <- read_excel("Prediction_Test.xlsx",col_types = c("date","numeric", "numeric"))
+      forecasting_data <- forecast_df[c(1,3)]
+      
+      m <- prophet(forecasting_data, daily.seasonality=TRUE) 
+      future <- make_future_dataframe(m, periods = 365) 
+      predict(m, future)
+      plot(m, forecast)
+      
+    })
+    
+    output$forecast_total <- renderImage({
+      list(
+        src = "www/images/forecast.jpg",
+        filetype = "image",
+        width = 590,
+        height = 400,
+        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft",
+        deleteFile=TRUE 
+      )
+      
+    }) 
+      
+    
+   
   
   #------------------------
   #Analyse_pro_Bundesland   
