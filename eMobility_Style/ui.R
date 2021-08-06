@@ -13,6 +13,7 @@ library(leaflet)
 library(shinycssloaders)
 library(shinydashboard)
 library(shinyWidgets)
+library(dygraphs)
 
 
 
@@ -63,7 +64,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                             fluidRow(
                               #valueBox(value = "mean_mpg",
                               #         subtitle = "mean of mpg",
-                              #         icon = "tachometer",
+                              #         icon =x "tachometer",
                               #         color = "green"),
                               #valueBox(value = "mean_mpg1",
                               #         subtitle = "test",
@@ -73,10 +74,10 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                 uiOutput("orderNum"), "Veränderung in %", icon = icon("chart-line", lib = "font-awesome")
                               ),
                               infoBox(
-                                uiOutput("orderNum1"), "Not specified", icon = icon("credit-card")
+                                uiOutput("orderNum1"), "Investitionskosten", icon = icon("euro-sign", lib = "font-awesome")
                               ),
                               infoBox(
-                                uiOutput("orderNum2"), "Not specified", icon = icon("credit-card")
+                                uiOutput("orderNum2"), "Verhätnis Schnell/Normal", icon = icon("credit-card")
                               )
                             ),
                             
@@ -188,17 +189,17 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                               #         icon = "calendar",
                               #         color = "blue"),
                               infoBox(
-                                uiOutput("mapInfo"), "Pro 1000 km", icon = icon("chart-line", lib = "font-awesome")
+                                uiOutput("mapInfo"), "Pro 1000 qkm", icon = icon("road", lib = "font-awesome")
                               ),
                               
                               #Summe Ladepunkte
                               infoBox(
-                                uiOutput("mapInfo1"), "Pro 1 Mio Einwohner", icon = icon("credit-card")
+                                uiOutput("mapInfo1"), "Pro 1 Mio Einwohner", icon = icon("users", lib = "font-awesome")
                               ),
                               
                               #Verhältnis Schnell / Normal 
                               infoBox(
-                                uiOutput("mapInfo2"), "Deutschlandweit", icon = icon("credit-card")
+                                uiOutput("mapInfo2"), "Deutschlandweit", icon = icon("globe", lib = "font-awesome")
                               )
                             ),
                             
@@ -307,9 +308,9 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                         type = "text/css", 
                                         href = "plugins/carousel.css"),
                               tags$script(src = "plugins/holder.js"),
-                              tags$style("#orderNum{font-size: 37px}"),
-                              tags$style("#orderNum1{font-size: 37px}"),
-                              tags$style("#orderNum2{font-size: 37px}"),
+                              tags$style("#orderNum{font-size: 29px}"),
+                              tags$style("#orderNum1{font-size: 29px}"),
+                              tags$style("#orderNum2{font-size: 29px}"),
                               tags$style("#text_1{font-size: 20px}"),
                               tags$style("#text_2{font-size: 15px}"),
                               tags$style("#text_11{font-size: 20px}"),
@@ -361,9 +362,9 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                       background-color: #282828;
                     }
                   ")),
-                              tags$style("#mapInfo{font-size: 37px}"),
-                              tags$style("#mapInfo1{font-size: 37px}"),
-                              tags$style("#mapInfo2{font-size: 37px}")
+                              tags$style("#mapInfo{font-size: 29px}"),
+                              tags$style("#mapInfo1{font-size: 29px}"),
+                              tags$style("#mapInfo2{font-size: 29px}")
                             ),
 
                             tags$style(type="text/css",

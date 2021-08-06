@@ -26,6 +26,7 @@ allData <- read_excel("Ladesaeulenkarte_v3.xlsx",
 data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
                                 col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
 
+data_kosten <- read_excel("Kosten_Ladeinfrastruktur.xlsx")
 
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -306,18 +307,16 @@ shinyServer(function(input, output, session) {
       filter(year <= input$Jahr2) 
   })
   
-    
-    output$forecast <- renderPlot({
-      
-      forecast_df <- read_excel("Prediction_Test.xlsx",col_types = c("date","numeric", "numeric"))
-      forecasting_data <- forecast_df[c(1,3)]
-      
-      m <- prophet(forecasting_data, daily.seasonality=TRUE) 
-      future <- make_future_dataframe(m, periods = 365) 
-      predict(m, future)
-      plot(m, forecast)
-      
+  
+    output$kumuliert <- renderPlotly({
+      fig <- plot_ly(data = data_kumuliert(),x=~Month,y=~total1,name =~Ladeeinrichtung, type="scatter", mode="lines")
+      fig %>% layout(legend = list(x = 0.1, y = 0.9),
+                     title = '\nSummer aller Ladepunkte\n',
+                     xaxis = list(title = 'Monat/Jahr',
+                                  zeroline = TRUE),
+                     yaxis = list(title = 'Anzahl Ladepunkte\n'))
     })
+    
     
     output$forecast_total <- renderImage({
       list(
@@ -351,45 +350,92 @@ shinyServer(function(input, output, session) {
   
 
   output$orderNum1 <- renderText({
-    paste("+",as.character(round(veraenderung())),"%")
-    
-    # Durchschnittliche Hinzunahme von Ladepunkten pro Monat
+    paste(as.character(round(cost()/1000)),"T€")
+    # Kosten der Ladeinfrastruktur
   })
   
   output$orderNum2 <- renderText({
-    paste("+",as.character(round(veraenderung())),"%")
+    paste(as.character(round(verhaeltnis_schnell())),"% /", as.character(round(verhaeltnis_normal())), "%")
     # Verhältnis Schnell/Langsam 
   })
   
+  preis_schnell <- data_kosten[data_kosten$Hardware_EUR == 5250, "Total_EUR"]/2
   
-  min_wert_1 = reactive({
-    d = allData %>%
-      filter(Bundesland == "Baden-Württemberg", Ladeeinrichtung != 0) %>%
-      filter(Inbetriebnahmedatum <= "2016-01-01") %>%
-      group_by(Month) %>% 
+  preis_normal <- data_kosten[data_kosten$Hardware_EUR == 22500, "Total_EUR"]/2
+  
+  cost = reactive({
+    ((schnelllade_max()-schnelllade_min())*preis_schnell)+((normallade_max()-normallade_min())*preis_normal)
+  })
+  
+  verhaeltnis_schnell = reactive({
+    ((schnelllade_max() - schnelllade_min())/(normallade_max() - normallade_min() + schnelllade_max() - schnelllade_min())*100)
+  })
+  
+  verhaeltnis_normal = reactive({
+    ((normallade_max() - normallade_min())/(normallade_max() - normallade_min() + schnelllade_max() - schnelllade_min())*100)
+  })
+  
+  
+  schnelllade_min = reactive({
+    d <- allData %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0, Ladepunkte != 0, Inbetriebnahmedatum <= input$input_date_range[1], Ladeeinrichtung == "Schnellladeeinrichtung") %>%
+      group_by(Ladeeinrichtung) %>% 
       summarise(total=sum(Ladepunkte)) %>%
       mutate(total1 = cumsum(total)) %>%
-      arrange(desc(Month)) %>%
-      slice(0:1) %>%
-      select(total1)
+      select(total1) 
+    
+    if (dim(d)[1] == 0) {
+      return(0)
+    } else {
+      return(d)
+    }
   })
   
-  max_wert_1 = reactive({
-    d = allData %>%
-      filter(Bundesland == input$country, Ladeeinrichtung != 0) %>%
-      filter(Inbetriebnahmedatum <= input$input_date_range[2]) %>%
-      group_by(Month) %>% 
+  normallade_min = reactive({
+    d <- allData %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0, Ladepunkte != 0, Inbetriebnahmedatum <= input$input_date_range[1], Ladeeinrichtung == "Normalladeeinrichtung") %>%
+      group_by(Ladeeinrichtung) %>% 
       summarise(total=sum(Ladepunkte)) %>%
       mutate(total1 = cumsum(total)) %>%
-      arrange(desc(Month)) %>%
-      slice(0:1) %>%
       select(total1)
+    
+    if (dim(d)[1] == 0) {
+      return(0)
+    } else {
+      return(d)
+    }
   })
   
-  veraenderung1 = reactive({
-    ((max_wert1() - min_wert1())/min_wert1())*100
+  schnelllade_max = reactive({
+    d <- allData %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0, Ladepunkte != 0, Inbetriebnahmedatum <= input$input_date_range[2], Ladeeinrichtung == "Schnellladeeinrichtung") %>%
+      group_by(Ladeeinrichtung) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      select(total1)
+    
+    if (dim(d)[1] == 0) {
+      return(0)
+    } else {
+      return(d)
+    }
   })
   
+  normallade_max = reactive({
+    d <- allData %>%
+      filter(Bundesland == input$country, Ladeeinrichtung != 0, Ladepunkte != 0, Inbetriebnahmedatum <= input$input_date_range[2], Ladeeinrichtung == "Normalladeeinrichtung") %>%
+      group_by(Ladeeinrichtung) %>% 
+      summarise(total=sum(Ladepunkte)) %>%
+      mutate(total1 = cumsum(total)) %>%
+      select(total1)
+    
+    if (dim(d)[1] == 0) {
+      return(0)
+    } else {
+      return(d)
+    }
+  })
+
   
   text1 <- "Hallo"
   #output$vbox <- renderValueBox(vb)
@@ -589,7 +635,7 @@ shinyServer(function(input, output, session) {
                          ", Intercept =",signif(fit1$coef[[1]],5 ),
                          ", Slope =",signif(fit1$coef[[2]], 5),
                          ", P =",signif(summary(fit1)$coef[2,4], 5)),
-           x="Ladepunkte", y="Neuzulassungen") +
+           x="Ladepunkte", y="Neuzulassungen BEV") +
       theme(legend.title = element_blank(), plot.title = element_text(size=8))
   })
  
@@ -847,7 +893,7 @@ shinyServer(function(input, output, session) {
             axis.title =element_text(size=11, hjust=0.5, color="grey46"),
             legend.text=element_text(size=11, face="italic", colour = "grey"),
             plot.title=element_text(size=20, hjust=0.5, face="bold", colour="grey", vjust=-1),
-            plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),) +
+            plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey")) +
       transition_reveal(readr::parse_number(year)) +
       labs(title = 'Wachstum der Ladepunkte pro Jahr',
            subtitle  =  " ")
