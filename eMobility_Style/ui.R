@@ -7,14 +7,9 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(plotly)
-library(leaflet)
-library(shinycssloaders)
-library(shinydashboard)
-library(shinyWidgets)
-library(dygraphs)
+library(install.load)
 
+install_load("shiny","plotly",  "shinycssloaders", " readxl","leaflet", "ggplot2",  "DT", "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", "data.table", "forecast", "geojson", "plotly", "prophet", "shinydashboard", "shinyWidgets", "dygraphs")
 
 
 
@@ -222,10 +217,8 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                             #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("pro 100qkm",leafletOutput("m")),
                                             tabPanel("pro 100.000 Einwohner", leafletOutput("map_einwohner")),
-                                            tabPanel("total", leafletOutput("map2"))),
-                                imageOutput("animatedplot")
-                                
-                                
+                                            tabPanel("Total", leafletOutput("map2")),
+                                            tabPanel("Erläuterung", textOutput("text_map"))),
                                 
                                 
                 
@@ -252,7 +245,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                 mainPanel(
                                   tabsetPanel(type = "tabs",
                                               tabPanel("Regressionsanalyse", plotlyOutput("zulassungen_plot")),
-                                              tabPanel("Erläuterung", textOutput("text_11"), textOutput("text_22"))
+                                              tabPanel("Erläuterung", textOutput("text_22"))
                                   )
                                 ))
                             )),
@@ -277,13 +270,14 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                             
                             sidebarLayout(
                               sidebarPanel(
-                                selectInput("country_zeit1", "Bundesland auswählen", choices = NULL)
+                                imageOutput("fc")
                               ),
                               mainPanel(
                                 
                                 tabsetPanel(type = "tabs",
-                                            tabPanel("Entwicklung bis Mitte 2021", imageOutput("lineplot1")),
-                                            tabPanel("Ausblick in die Zukunft", imageOutput("forecast_total")))
+                                            tabPanel("Entwicklung bis Mitte 2021", selectInput("country_zeit1", "Wähle Bundesland", choices = NULL), imageOutput("lineplot1")),
+                                            tabPanel("Ausblick in die Zukunft", textOutput("text_dauer"), plotOutput("prophet")),
+                                            tabPanel("Erläuterung", textOutput("text_forecasting"))),
                                 
                               )
                             ),

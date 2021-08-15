@@ -14,7 +14,7 @@ library(geojson)
 library(prophet)
 
 
-allData <- read_excel("Ladesaeulenkarte_v3.xlsx", 
+allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx", 
                       col_types = c("text", "text", "text", 
                                     "text", "numeric", "numeric", "date", 
                                     "numeric", "text", "numeric", "text", 
@@ -22,11 +22,11 @@ allData <- read_excel("Ladesaeulenkarte_v3.xlsx",
                                     "numeric", "text", "numeric", "text", 
                                     "text"))
 
-#zulassungen <- read.csv("Ladesaeulenkarte_neu.xlsx")
-data_zulassungen <- read_table2("zulassungen_bundesland2.csv",
+#zulassungen <- read.csv("data/Ladesaeulenkarte_neu.xlsx")
+data_zulassungen <- read_table2("data/zulassungen_bundesland2.csv",
                                 col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
 
-data_kosten <- read_excel("Kosten_Ladeinfrastruktur.xlsx")
+data_kosten <- read_excel("data/Kosten_Ladeinfrastruktur.xlsx")
 
 
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
@@ -67,13 +67,13 @@ shinyServer(function(input, output, session) {
   #-------------------------------
   
   #Dichtekarte pro qkm:
-  states <- geojsonio::geojson_read("bundeslaender.geojson", what = "sp")
+  states <- geojsonio::geojson_read("data/bundeslaender.geojson", what = "sp")
   class(states)
   
   allData_Map <- allData[1:10]
   allData_Map$year <- format(as.Date(allData_Map$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
   
-  flaeche <- read_excel("Bundesland_flaeche.xlsx",
+  flaeche <- read_excel("data/Bundesland_flaeche.xlsx",
                         col_types = c("text", "numeric"))
   
   
@@ -167,7 +167,7 @@ shinyServer(function(input, output, session) {
   
  #Dichtekarte pro Einwohner
   
-  einwohner <- read_excel("Bundesland_einwohner.xlsx",
+  einwohner <- read_excel("data/Bundesland_einwohner.xlsx",
                         col_types = c("text", "numeric"))
   
   
@@ -298,23 +298,39 @@ shinyServer(function(input, output, session) {
                        color=~pal1(Ladeeinrichtung), stroke = F, fillOpacity = 0.5) 
       
   })
+  
+  
+  output$text_map <- renderText({ "Die Ladeinfrastruktur in Deutschland steht unter ständiger Veränderung und rapidem Wachstum. Die vorherigen Darstellungen
+    zeigen die Entwicklung der Ladeinfrastruktur der Vergangenheit. Damit der Ausbau der Ladeinfrastruktur unter den einzelnen Bundesländern vergleichbar gemacht werden kann
+    werden einmal die Anzahl der Ladepunkte in Relation zur Fläche und zur Anzahl der Einwohner gesetzt. Hierfür werden weitere externe Datenpunkte hinzugefügt. 
+    Unter dem letztem Tab werden die Ladesäule geografisch angezeigt."
+  })
 #------
   
   #Forecasting mit Prophet
   
-  filtered <- reactive({
-    allData_Map %>%
-      filter(year <= input$Jahr2) 
-  })
   
   
-    output$kumuliert <- renderPlotly({
-      fig <- plot_ly(data = data_kumuliert(),x=~Month,y=~total1,name =~Ladeeinrichtung, type="scatter", mode="lines")
-      fig %>% layout(legend = list(x = 0.1, y = 0.9),
-                     title = '\nSummer aller Ladepunkte\n',
-                     xaxis = list(title = 'Monat/Jahr',
-                                  zeroline = TRUE),
-                     yaxis = list(title = 'Anzahl Ladepunkte\n'))
+  
+  
+    output$prophet <- renderPlot({
+      
+      newData <- read_excel("data/Prediction_Test.xlsx", 
+                            col_types = c("date", "numeric", "numeric"))
+      
+      
+      newdata <- newData[c(1,3)]
+
+      
+      m <- prophet(newdata, daily.seasonality = TRUE)
+      
+      future <- make_future_dataframe(m, periods = 365)
+      
+      forecast <- predict(m,future)
+      
+      plot(m, forecast, 
+           xlab="Zeit", ylab="Ladepunkte") 
+      
     })
     
     
@@ -329,7 +345,21 @@ shinyServer(function(input, output, session) {
       )
       
     }) 
+    
+    output$fc <- renderImage({
+      list(
+        src = "www/images/fc.jpg",
+        filetype = "image",
+        width = 230,
+        height = 200,
+        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft"
+      )
       
+    }, deleteFile = FALSE) 
+      
+    output$text_dauer <- renderText({"Die Prognose wird in Echtzeit berechnet und dauert demnach einige Minuten."})
+    output$text_forecasting <- renderText({"Im Tab <<Entwicklung bis Mitte 2021>> wird die Entwickung der Ladeinfrastruktur in Deutschland als Animation angezeigt. Die Animation bezieht sich auf das jeweils ausgewählte Bundesland.
+    Die im zweiten Tab dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt. Außerdem wird die Prognose in Echzeit durchgeführt und dauert demanch einige Minuten."})
     
    
   
@@ -638,11 +668,10 @@ shinyServer(function(input, output, session) {
            x="Ladepunkte", y="Neuzulassungen BEV") +
       theme(legend.title = element_blank(), plot.title = element_text(size=8))
   })
- 
-  output$text_11 <- renderText({ "Hier steht eine Erläuterung"
-  })
+
   
-  output$text_22 <- renderText({ "Hier steht noch eine Erläuterung"
+  output$text_22 <- renderText({ "Mithilfe der Regressionsanalyse lässt es sich veranschaulichen wie gut die Werter einer Variable mit den Werten einer anderen Variablen sich vorhersagen lassen. Außerdem hilft die Analyse dabei
+    die Zusamenhänge der beiden Variablen zu  beschreiben. In unserem Fall möchten wir mithilfe der neuinbetriegenommenen Laepunkte die Zulassungen der Elektrofahrzeuge vorhersagen bzw. zusammenhänge erkennen."
   })
   
   #output$zulassungen_plot <- renderPlotly({
