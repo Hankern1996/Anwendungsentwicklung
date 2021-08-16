@@ -225,7 +225,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
 
                               )
                               
-                            ),
+                            )
                             
                       
                    
