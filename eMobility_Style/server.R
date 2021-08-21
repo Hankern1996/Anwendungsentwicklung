@@ -256,7 +256,7 @@ shinyServer(function(input, output, session) {
 
   
   
-  #zweite Map mit Slider
+  #weitere Map mit Slider
   
   filteredData <- reactive({
     allData_Map %>%
@@ -336,7 +336,7 @@ shinyServer(function(input, output, session) {
     
     output$forecast_total <- renderImage({
       list(
-        src = "www/images/forecast.jpg",
+        src = "www/images/prophet.jpg",
         filetype = "image",
         width = 590,
         height = 400,
@@ -357,7 +357,6 @@ shinyServer(function(input, output, session) {
       
     }, deleteFile = FALSE) 
       
-    output$text_dauer <- renderText({"Die Prognose wird in Echtzeit berechnet und dauert demnach einige Minuten."})
     output$text_forecasting <- renderText({"Im Tab <<Entwicklung bis Mitte 2021>> wird die Entwickung der Ladeinfrastruktur in Deutschland als Animation angezeigt. Die Animation bezieht sich auf das jeweils ausgewählte Bundesland.
     Die im zweiten Tab dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt. Außerdem wird die Prognose in Echzeit durchgeführt und dauert demanch einige Minuten."})
     

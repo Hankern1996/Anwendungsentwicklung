@@ -12,9 +12,6 @@ library(install.load)
 install_load("shiny","plotly",  "shinycssloaders", " readxl","leaflet", "ggplot2",  "DT", "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", "data.table", "forecast", "geojson", "plotly", "prophet", "shinydashboard", "shinyWidgets", "dygraphs")
 
 
-
-
-# Define UI for application that draws a histogram
 shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                    theme = "style/style.css",
                    footer = includeHTML("footer.html"),
@@ -38,33 +35,15 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                         href = "images/logo_icon_e.png")
                             ),
                             
-                            #fluidRow(column(width=2),
-                             #        column(
-                            #           
-                            #           br(),
-                            #           p("Mit rund 400.000 Neuzulassungen im Jahr 2020 befindet sich Deutschland im weltweiten Vergleich nach China auf dem zweiten Platz. Dies bedeutet eine Erhöhung um fast 300% gegenüber dem Vorjahr [1].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
-                            #           br(),
-                            #           
-                            #           p("Der Bestand an E-Fahrzeugen kann bis zu den Jahren 2025 bzw. 2030 deutlich stärker ansteigen als heute angenommen – das zeigen vertrauliche Angaben der befragten Automobilhersteller. Bis zu 14,8 Millionen batterieelektrische E-Fahrzeuge und Plug-In-Hybride könnten 2030 in Deutschland zugelassen sein [2].",style="text-align:justify;color:black;background-color:deepskyblue;padding:15px;border-radius:10px"),
-                            #           
-                            #           width=8))
-                            
                    ),
                    
                 
                    
                    # ----------------------------------
-                   # tab panel 3 - Analysen
+                   # tab panel 2 - Historische Entwicklung
                    tabPanel("Historische Entwicklung",
                             fluidRow(
-                              #valueBox(value = "mean_mpg",
-                              #         subtitle = "mean of mpg",
-                              #         icon =x "tachometer",
-                              #         color = "green"),
-                              #valueBox(value = "mean_mpg1",
-                              #         subtitle = "test",
-                              #         icon = "calendar",
-                              #         color = "blue"),
+                             
                               infoBox(
                                 uiOutput("orderNum"), "Veränderung in %", icon = icon("chart-line", lib = "font-awesome")
                               ),
@@ -81,17 +60,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                             sidebarLayout(
                               sidebarPanel(h4("Inbetriebnahme von Ladepunkten pro Bundesland"),
                                            selectizeInput("country", "Wähle Bundesland", choices = NULL),
-                                           #airMonthpickerInput("input_var_month",
-                                          #                     label = "Zeitraum",
-                                          #                     range=TRUE,
-                                           #                    #value = "2020-01-01",
-                                            #                  maxDate = "2021-06-01",
-                                             #                 minDate = "2008-07-01",
-                                              #                #view = "months", #editing what the popup calendar shows when it opens
-                                               #               #minView = "months", #making it not possible to go down to a "days" view and pick the wrong date
-                                                #              dateFormat = "mm-yyyy",
-                                                 #             language ="de"
-                                                  #            ),
+                                        
                                            dateRangeInput("input_date_range",
                                                           label="Zeitraum",
                                                           start = "2016-01-01", 
@@ -104,16 +73,6 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                              
                                            ),
                                           
-                                           #sliderInput("DatesMerge",
-                                          #             "Dates:",
-                                          #             min = as.Date("2008/07/01"),
-                                          #             max = as.Date("2021/06/31"),
-                                          #             value=c(as.Date("2008/07/01"), as.Date("2021/06/31")),
-                                          #             format = "%m %Y"
-                                          #        )
-                                           
-                                           #min = as.Date("2010-01-01"),max =as.Date("2014-12-01"),value=as.Date("2014-12-01"),timeFormat="%b %Y"
-                                      
                                            ),
                             
                               
@@ -127,62 +86,16 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                               
                             ))
                             
-                            
-                            
-                            
-                            
-                            #sidebarLayout(
-                            #  sidebarPanel(h4("Wachstum der Ladepunkten pro Bundesland"),
-                            #               selectizeInput("country_zeit", "Wähle Bundesland", choices = NULL)),
-                            #  
-                            #  mainPanel(
-                            #   tabsetPanel(type = "tabs",
-                            #                tabPanel("Lineplot", imageOutput("lineplot")),
-                            #                tabPanel("Data", tableOutput("datahead2"))),
-                            #  )
-                            #),
-                            
-                            #sidebarLayout(
-                            #  sidebarPanel(h4("Top 10 Städte"),
-                            #               selectInput("checkYear", "Wähle Jahr", choices = NULL)
-                            #  ),
-                            #  
-                            #  mainPanel(
-                            #    tabsetPanel(type = "tabs",
-                            #                tabPanel("Barplot", plotlyOutput("barplot1")),
-                            #                tabPanel("Data", tableOutput("datahead1"))),
-                            #  )
-                            #),
-                            
-                            #sidebarLayout(
-                            #  sidebarPanel(h4("Inbetriebnahme der Ladepunkte"),
-                            #               selectInput("checkBundesland", "Wähle Bundesland", choices = NULL)
-                            #  ),
-                            #  
-                            #  mainPanel(
-                            #    tabsetPanel(type = "tabs",
-                            #                tabPanel("Forecast", plotlyOutput("forecast")),
-                            #                tabPanel("Data", tableOutput("datahead2"))),
-                            #  )
-                            #)
-                            #propertyComparison()
                    ),
                    
                    
                    
                    # ----------------------------------
-                   # tab panel 2 - Ladesäulenkarte
+                   # tab panel 3 - Ladesäulenkarte
                    tabPanel("Flächenabdeckung",
                             #includeHTML("scrollToTop.html"),
                             fluidRow(
-                              #valueBox(value = "mean_mpg",
-                              #         subtitle = "mean of mpg",
-                              #         icon = "tachometer",
-                              #         color = "green"),
-                              #valueBox(value = "mean_mpg1",
-                              #         subtitle = "test",
-                              #         icon = "calendar",
-                              #         color = "blue"),
+                             
                               infoBox(
                                 uiOutput("mapInfo"), "Pro 1000 qkm", icon = icon("road", lib = "font-awesome")
                               ),
@@ -214,10 +127,9 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                               mainPanel(
                                 
                                 tabsetPanel(type = "tabs",
-                                            #tabPanel("Test", verbatimTextOutput("test")),
                                             tabPanel("pro 100qkm",leafletOutput("m")),
                                             tabPanel("pro 100.000 Einwohner", leafletOutput("map_einwohner")),
-                                            tabPanel("Total", leafletOutput("map2")),
+                                            tabPanel("Deutschlandweit", leafletOutput("map2")),
                                             tabPanel("Erläuterung", textOutput("text_map"))),
                                 
                                 
@@ -226,10 +138,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                               )
                               
                             )
-                            
-                      
-                   
-                  
+
                    
                    ),
                    
@@ -276,7 +185,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                                 
                                 tabsetPanel(type = "tabs",
                                             tabPanel("Entwicklung bis Mitte 2021", selectInput("country_zeit1", "Wähle Bundesland", choices = NULL), imageOutput("lineplot1")),
-                                            tabPanel("Ausblick in die Zukunft", textOutput("text_dauer"), plotOutput("prophet")),
+                                            tabPanel("Ausblick in die Zukunft",imageOutput("forecast_total")),
                                             tabPanel("Erläuterung", textOutput("text_forecasting"))),
                                 
                               )
