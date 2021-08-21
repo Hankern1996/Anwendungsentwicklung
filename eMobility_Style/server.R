@@ -340,7 +340,7 @@ shinyServer(function(input, output, session) {
         filetype = "image",
         width = 590,
         height = 400,
-        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft",
+        alt = "Entwicklung der Ladeinfrastruktur in der Zukunft",
         deleteFile=TRUE 
       )
       
@@ -352,13 +352,13 @@ shinyServer(function(input, output, session) {
         filetype = "image",
         width = 230,
         height = 200,
-        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft"
+        alt = "Entwicklung der Ladeinfrastruktur in der Zukunft"
       )
       
     }, deleteFile = FALSE) 
       
     output$text_forecasting <- renderText({"Im Tab <<Entwicklung bis Mitte 2021>> wird die Entwickung der Ladeinfrastruktur in Deutschland als Animation angezeigt. Die Animation bezieht sich auf das jeweils ausgewählte Bundesland.
-    Die im zweiten Tab dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt. Außerdem wird die Prognose in Echzeit durchgeführt und dauert demanch einige Minuten."})
+    Die im zweiten Tab <<Ausblick in die Zukunft>> dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt. Außerdem wird die Prognose in Echzeit durchgeführt und dauert demanch einige Minuten."})
     
    
   
