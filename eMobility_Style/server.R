@@ -1,6 +1,5 @@
 library(shiny)
 library(plotly)
-library(readxl)
 library(leaflet)
 library(ggplot2)
 library(tidyverse)

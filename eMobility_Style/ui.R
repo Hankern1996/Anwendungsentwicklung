@@ -9,7 +9,7 @@
 
 library(install.load)
 
-install_load("shiny","plotly",  "shinycssloaders", " readxl","leaflet", "ggplot2",  "DT", "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", "data.table", "forecast", "geojson", "plotly", "prophet", "shinydashboard", "shinyWidgets", "dygraphs")
+install_load("shiny","plotly",  "shinycssloaders","leaflet", "ggplot2",  "DT", "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", "data.table", "forecast", "geojson", "plotly", "prophet", "shinydashboard", "shinyWidgets", "dygraphs")
 
 
 shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
