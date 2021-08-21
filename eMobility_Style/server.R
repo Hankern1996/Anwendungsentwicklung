@@ -256,7 +256,7 @@ shinyServer(function(input, output, session) {
 
   
   
-  #zweite Map mit Slider
+  #weitere Map mit Slider
   
   filteredData <- reactive({
     allData_Map %>%
@@ -301,7 +301,7 @@ shinyServer(function(input, output, session) {
   
   
   output$text_map <- renderText({ "Die Ladeinfrastruktur in Deutschland steht unter ständiger Veränderung und rapidem Wachstum. Die vorherigen Darstellungen
-    zeigen die Entwicklung der Ladeinfrastruktur der Vergangenheit. Damit der Ausbau der Ladeinfrastruktur unter den einzelnen Bundesländern vergleichbar gemacht werden kann
+    zeigen die Entwicklung der Ladeinfrastruktur in der Vergangenheit. Damit der Ausbau der Ladeinfrastruktur unter den einzelnen Bundesländern vergleichbar gemacht werden kann,
     werden einmal die Anzahl der Ladepunkte in Relation zur Fläche und zur Anzahl der Einwohner gesetzt. Hierfür werden weitere externe Datenpunkte hinzugefügt. 
     Unter dem letztem Tab werden die Ladesäule geografisch angezeigt."
   })
@@ -336,11 +336,11 @@ shinyServer(function(input, output, session) {
     
     output$forecast_total <- renderImage({
       list(
-        src = "www/images/forecast.jpg",
+        src = "www/images/prophet.jpg",
         filetype = "image",
         width = 590,
         height = 400,
-        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft",
+        alt = "Entwicklung der Ladeinfrastruktur in der Zukunft",
         deleteFile=TRUE 
       )
       
@@ -352,14 +352,13 @@ shinyServer(function(input, output, session) {
         filetype = "image",
         width = 230,
         height = 200,
-        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft"
+        alt = "Entwicklung der Ladeinfrastruktur in der Zukunft"
       )
       
     }, deleteFile = FALSE) 
       
-    output$text_dauer <- renderText({"Die Prognose wird in Echtzeit berechnet und dauert demnach einige Minuten."})
     output$text_forecasting <- renderText({"Im Tab <<Entwicklung bis Mitte 2021>> wird die Entwickung der Ladeinfrastruktur in Deutschland als Animation angezeigt. Die Animation bezieht sich auf das jeweils ausgewählte Bundesland.
-    Die im zweiten Tab dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt. Außerdem wird die Prognose in Echzeit durchgeführt und dauert demanch einige Minuten."})
+    Die im zweiten Tab <<Ausblick in die Zukunft>> dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt."})
     
    
   
@@ -543,13 +542,10 @@ shinyServer(function(input, output, session) {
                                 zeroline = TRUE),
                    yaxis = list(title = 'Anzahl Ladepunkte\n'))
   })
-  
 
   
-  output$text_1 <- renderText({ "Hier steht eine Erläuterung"
-  })
-  
-  output$text_2 <- renderText({ "Hier steht noch eine Erläuterung"
+  output$text_2 <- renderText({ "Vorliegende Analyse zeigt sowohl die kumulierte als auch distinktive Entwicklung der Inebtrieb genommenen Ladeopunkte in den jeweiligen Bundesländern. Es wird außerdem unterschieden zwischen Schnell- und Normalladestationen. 
+    Zudem werden die Kosten des Ladeinfrastrukturausbaus dynamisch angezeigt. Hierzu wird der Ladereport veröffentlich 2020 im Auftrag der EnBW Energie Baden-Württemberg AG hinzugezogen. "
   })
   
   #output$datahead <- renderTable({
@@ -670,8 +666,8 @@ shinyServer(function(input, output, session) {
   })
 
   
-  output$text_22 <- renderText({ "Mithilfe der Regressionsanalyse lässt es sich veranschaulichen wie gut die Werter einer Variable mit den Werten einer anderen Variablen sich vorhersagen lassen. Außerdem hilft die Analyse dabei
-    die Zusamenhänge der beiden Variablen zu  beschreiben. In unserem Fall möchten wir mithilfe der neuinbetriegenommenen Laepunkte die Zulassungen der Elektrofahrzeuge vorhersagen bzw. zusammenhänge erkennen."
+  output$text_22 <- renderText({ "Mithilfe der Regressionsanalyse lässt es sich veranschaulichen, wie gut sich die Werte einer Variable mit den Werten einer anderen Variablen vorhersagen lassen. Außerdem hilft die Analyse dabei,
+    die Zusamenhänge der beiden Variablen zu  beschreiben. In vorliegendem Fall wird mithilfe der neu in Betrieb genommenen Ladepunkte die Zulassungen der Elektrofahrzeuge vorhergesagt bzw. Zusammenhänge erkannt. Zur Auswahl stehen die Jahre 2017 - 2019. Für diese Jahre stellt das Kraftfahrtbundesamt die öffentlich zugänglichen Daten zur Verfügung."
   })
   
   #output$zulassungen_plot <- renderPlotly({
@@ -932,6 +928,9 @@ shinyServer(function(input, output, session) {
          #height = 800
          # alt = "This is alternate text"
     )}, deleteFile = FALSE)
+  })
+  
+  output$text_development <- renderText({ "Die Entwicklung der Ladeinfrastruktur: Vergangenheit bis Zukunft"
   })
   
   output$lineplot_development <- renderImage({
