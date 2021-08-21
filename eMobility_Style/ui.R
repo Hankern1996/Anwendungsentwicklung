@@ -275,7 +275,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                               mainPanel(
                                 
                                 tabsetPanel(type = "tabs",
-                                            tabPanel("Entwicklung bis Mitte 2021", selectInput("country_zeit1", "Wähle Bundesland", choices = NULL), imageOutput("lineplot1")),
+                                            tabPanel("Entwicklung bis Mitte 2021", selectInput("country_zeit1", "Wähle Bundesland", choices = NULL), imageOutput("lineplot_development")),
                                             tabPanel("Ausblick in die Zukunft", textOutput("text_dauer"), plotOutput("prophet")),
                                             tabPanel("Erläuterung", textOutput("text_forecasting"))),
                                 
@@ -284,8 +284,8 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                             
                             #sidebarLayout(
                             #  sidebarPanel(
-                            #    h4("Wachstum der Ladepunkten pro Bundesland"),
-                            #    selectInput("country_zeit", "Wähle Bundesland", choices = NULL),
+                                h4("Wachstum der Ladepunkten pro Bundesland"),
+                                #selectInput("country_zeit", "Wähle Bundesland", choices = NULL),
                             #    actionButton("run_button_zeit","Berechnen (ca. 1 Min.)",icon=icon("play"))
                             #  ),
                             #  mainPanel(

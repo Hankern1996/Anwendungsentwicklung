@@ -893,16 +893,12 @@ shinyServer(function(input, output, session) {
   
   data_zeit = reactive({
     d = allData %>%
-      filter(Bundesland == input$country_zeit) %>%
+      filter(Bundesland != 0, Ladepunkte != 0) %>%
       group_by(year, Ladeeinrichtung) %>%
       summarise(total=sum(Ladepunkte)) %>%
       group_by(Ladeeinrichtung) %>%
       mutate(total1 = cumsum(total))
   })
-  
-  countries = sort(unique(allData$Bundesland))[-1]
-  
-  updateSelectInput(session, "country_zeit", choices=countries, selected="Baden-Württemberg")
   
   observeEvent(input$run_button_zeit,{
   output$lineplot <- renderImage({
@@ -938,144 +934,18 @@ shinyServer(function(input, output, session) {
     )}, deleteFile = FALSE)
   })
   
-  
-  countries = sort(unique(allData$Bundesland))[-1]
-  
-  updateSelectInput(session, "country_zeit1", choices=countries, selected="Baden-Württemberg")
-  
-    output$lineplot1 <- renderImage({
-  
-      if ( input$country_zeit1 == "Baden-Württemberg") { 
-        return(list(
-          src = "www/images/gif2/baden_wuerttemberg.gif",
-          fileType = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Baden-Württemberg"
-        ))
-      } else if (input$country_zeit1 == "Bayern") {
-        return(list(
-          src = "www/images/gif2/bayern.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Bayern"
-        ))
-      } else if (input$country_zeit1 == "Berlin") {
-        return(list(
-          src = "www/images/gif2/berlin.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Berlin"
-        ))
-      } else if (input$country_zeit1 == "Brandenburg") {
-        return(list(
-          src = "www/images/gif2/brandenburg.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Brandenburg"
-        ))
-      } else if (input$country_zeit1 == "Bremen") {
-        return(list(
-          src = "www/images/gif2/bremen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Bremen"
-        ))
-      } else if (input$country_zeit1 == "Hamburg") {
-        return(list(
-          src = "www/images/gif2/hamburg.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Hamburg"
-        ))
-      } else if (input$country_zeit1 == "Hessen") {
-        return(list(
-          src = "www/images/gif2/hessen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Hessen"
-        ))
-      } else if (input$country_zeit1 == "Mecklenburg-Vorpommern") {
-        return(list(
-          src = "www/images/gif2/mecklenburg_vorpommern.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Mecklenburg-Vorpommern"
-        ))
-      } else if (input$country_zeit1 == "Niedersachsen") {
-        return(list(
-          src = "www/images/gif2/niedersachsen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Niedersachsen"
-        ))
-      } else if (input$country_zeit1 == "Nordrhein-Westfalen") {
-        return(list(
-          src = "www/images/gif2/nordrhein_westfalen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Nordrhein-Westfalen"
-        ))
-      } else if (input$country_zeit1 == "Rheinland-Pfalz") {
-        return(list(
-          src = "www/images/gif2/rheinland_pfalz.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Rheinland-Pfalz"
-        ))
-      } else if (input$country_zeit1 == "Saarland") {
-        return(list(
-          src = "www/images/gif2/saarland.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Saarland"
-        ))
-      } else if (input$country_zeit1 == "Sachsen") {
-        return(list(
-          src = "www/images/gif2/sachsen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Sachsen"
-        ))
-      } else if (input$country_zeit1 == "Sachsen-Anhalt") {
-        return(list(
-          src = "www/images/gif2/sachsen_anhalt.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Sachsen-Anhalt"
-        ))
-      } else if (input$country_zeit1 == "Schleswig-Holstein") {
-        return(list(
-          src = "www/images/gif2/schleswig_holstein.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Schleswig-Holstein"
-        ))
-      } else if (input$country_zeit1 == "Thüringen") {
-        return(list(
-          src = "www/images/gif2/thueringen.gif",
-          filetype = "image/gif",
-          width = 590,
-          height = 400,
-          alt = "Entwicklung der Ladepunkte in Thüringen"
-        ))
-      }
-  
-    }, deleteFile = FALSE)
+  output$lineplot_development <- renderImage({
+    
+      list(
+        src = "www/images/development_germany.gif",
+        filetype = "image/gif",
+        width = 590,
+        height = 400,
+        alt = "Entwicklungs der Ladeinfrastruktur in der Zukunft",
+        deleteFile=TRUE 
+      )
+      
+    })
   
   
   
