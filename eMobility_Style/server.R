@@ -1,17 +1,19 @@
-library(shiny)
-library(plotly)
-library(readxl)
-library(leaflet)
-library(ggplot2)
-library(tidyverse)
-library(gganimate)
-library(gifski)
-library(shinycssloaders)
-library(directlabels)
-library(forecast)
-library(lubridate)
-library(geojson)
-library(prophet)
+#library(shiny)
+#library(plotly)
+#library(readxl)
+#library(leaflet)
+#library(ggplot2)
+#library(tidyverse)
+#library(gganimate)
+#library(gifski)
+#library(shinycssloaders)
+#library(directlabels)
+#library(forecast)
+#library(lubridate)
+#library(geojson)
+#library(prophet)
+#library(Rcpp)
+
 
 
 allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx", 
@@ -23,8 +25,12 @@ allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx",
                                     "text"))
 
 #zulassungen <- read.csv("data/Ladesaeulenkarte_neu.xlsx")
-data_zulassungen <- read_table2("data/zulassungen_bundesland2.csv",
-                                col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
+#data_zulassungen <- read.table("data/zulassungen_bundesland2.csv",
+#                                col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
+
+data_zulassungen <- read_delim("data/zulassungen_bundesland2.csv", 
+                                      "\t", escape_double = FALSE, col_types = cols(Datum = col_date(format = "%Y-%m-%d")), 
+                                      trim_ws = TRUE)
 
 data_kosten <- read_excel("data/Kosten_Ladeinfrastruktur.xlsx")
 
