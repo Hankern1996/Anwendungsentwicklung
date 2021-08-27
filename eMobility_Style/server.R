@@ -1,3 +1,4 @@
+
 #library(shiny)
 #library(plotly)
 #library(readxl)
@@ -13,7 +14,6 @@
 #library(geojson)
 #library(prophet)
 #library(Rcpp)
-
 
 
 allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx", 
