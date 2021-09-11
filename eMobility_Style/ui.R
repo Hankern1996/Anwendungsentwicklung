@@ -165,7 +165,7 @@ shinyUI(navbarPage(title = "Ladeinfrastruktur Deutschland",
                    
                    
                    # tab panel 4 - Prognosen
-                   tabPanel("Prognosen",
+                   tabPanel("Blick in die Zukunft",
                           
                             sidebarLayout(
                               sidebarPanel(
