@@ -15,6 +15,13 @@
 #library(prophet)
 #library(Rcpp)
 
+library(install.load)
+
+#install_load("shiny","plotly",  "shinycssloaders", " readxl","leaflet", "ggplot2",  "DT", "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", "data.table", "forecast", "geojson", "plotly", "prophet", "shinydashboard", "shinyWidgets", "dygraphs")
+install_load("shiny","plotly",  "shinycssloaders", "readxl","leaflet", "ggplot2",  "DT", 
+             "gganimate","gifski", "shinymaterial", "tidyverse", "directlabels", "lubridate", 
+             "data.table", "forecast", "geojson", "geojsonio", "prophet", "shinydashboard", 
+             "shinyWidgets", "dygraphs", "readr", "shinyjs", "scales")
 
 allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx", 
                       col_types = c("text", "text", "text", 
