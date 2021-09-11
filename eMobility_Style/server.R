@@ -24,10 +24,6 @@ allData <- read_excel("data/Ladesaeulenkarte_v3.xlsx",
                                     "numeric", "text", "numeric", "text", 
                                     "text"))
 
-#zulassungen <- read.csv("data/Ladesaeulenkarte_neu.xlsx")
-#data_zulassungen <- read.table("data/zulassungen_bundesland2.csv",
-#                                col_types = cols(Datum = col_date(format = "%Y-%m-%d")))
-
 data_zulassungen <- read_delim("data/zulassungen_bundesland2.csv", 
                                       "\t", escape_double = FALSE, col_types = cols(Datum = col_date(format = "%Y-%m-%d")), 
                                       trim_ws = TRUE)
@@ -38,18 +34,14 @@ data_kosten <- read_excel("data/Kosten_Ladeinfrastruktur.xlsx")
 allData$year <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%Y")
 allData$month <- format(as.Date(allData$Inbetriebnahmedatum, format="%Y-%m-%d"),"%m")
 allData$Month <- floor_date(allData$Inbetriebnahmedatum, "month")
-#allData$year <- floor_date(allData$Inbetriebnahmedatum, "year")
-#data_zulassungen$Datum <- as.Date(data_zulassungen$Datum, "%Y/%m/%d")
-#data_zulassungen$year <- floor_date(data_zulassungen$Datum, "year")
 data_zulassungen$year <- format(as.Date(data_zulassungen$Datum, format="%Y-%m-%d"),"%Y")
 
 list_choices <- list("Top 10 Städte","Top 10 Bundesländer")
 
-# Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
   
   #-------------------------------
-  # Veränderung: Hinzukommende Ladepunkte in Deutschland für die Kästchen
+  # Veränderung: Hinzukommende Ladepunkte in Deutschland
   
   deutschland_total <- reactive({
     allData %>% 
@@ -81,21 +73,8 @@ shinyServer(function(input, output, session) {
   
   flaeche <- read_excel("data/Bundesland_flaeche.xlsx",
                         col_types = c("text", "numeric"))
-  
-  
-  
-  #year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
-  #year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
 
-
-  
   bins <- c(0,1,2,5, 10, 15, 20,50,100,150, Inf)
-
-  #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
-
-
-
-
   
   year_start_test <- reactive({
     allData %>% 
@@ -166,30 +145,13 @@ shinyServer(function(input, output, session) {
     
   })
   
- 
-
-  
-  
   
  #Dichtekarte pro Einwohner
   
   einwohner <- read_excel("data/Bundesland_einwohner.xlsx",
                         col_types = c("text", "numeric"))
   
-  
-  
-  #year_start0 <- allData %>% filter(year <= 2020) %>% group_by(Bundesland) %>% summarize(total=sum(Ladepunkte))
-  #year_start0$density <- floor(year_start0$total/flaeche$qkm*100)
-  
-  
-  
   bins2 <- c(0,1,2,5, 10, 20,40,50, Inf)
-  
-  #pal <- colorBin("YlOrRd", domain = year_start0$density, bins = bins)
-  
-  
-  
-  
   
   year_einwohner <- reactive({
     allData %>% 
@@ -258,10 +220,6 @@ shinyServer(function(input, output, session) {
     
   })
   
-  
-
-  
-  
   #weitere Map mit Slider
   
   filteredData <- reactive({
@@ -311,13 +269,9 @@ shinyServer(function(input, output, session) {
     werden einmal die Anzahl der Ladepunkte in Relation zur Fläche und zur Anzahl der Einwohner gesetzt. Hierfür werden weitere externe Datenpunkte hinzugefügt. 
     Unter dem letztem Tab werden die Ladesäule geografisch angezeigt."
   })
-#------
   
+  #----------------------
   #Forecasting mit Prophet
-  
-  
-  
-  
   
     output$prophet <- renderPlot({
       
@@ -366,24 +320,13 @@ shinyServer(function(input, output, session) {
     output$text_forecasting <- renderText({"Im Tab <<Entwicklung bis Mitte 2021>> wird die Entwickung der Ladeinfrastruktur in Deutschland als Animation angezeigt. Die Animation bezieht sich auf das jeweils ausgewählte Bundesland.
     Die im zweiten Tab <<Ausblick in die Zukunft>> dargestellte Prognose wird mithilfe des Shiny Packages Prophet durchgeführt. Die Analyse bezieht sich auf Deutschland gesamt."})
     
-   
-  
   #------------------------
   #Analyse_pro_Bundesland   
-  
-  #output$mean_mpg<- renderText({ 
-  #  text1
-  #})
-  
-  #output$mean_mpg1<- renderText({ 
-  #  "text1"
-  #})
   
   output$orderNum <- renderText({
     paste("+",as.character(round(veraenderung())),"%")
   })
   
-
   output$orderNum1 <- renderText({
     paste(as.character(round(cost()/1000)),"T€")
     # Kosten der Ladeinfrastruktur
@@ -391,7 +334,7 @@ shinyServer(function(input, output, session) {
   
   output$orderNum2 <- renderText({
     paste(as.character(round(verhaeltnis_schnell())),"% /", as.character(round(verhaeltnis_normal())), "%")
-    # Verhältnis Schnell/Langsam 
+    # Verhältnis Schnell/Normal 
   })
   
   preis_schnell <- data_kosten[data_kosten$Hardware_EUR == 5250, "Total_EUR"]/2
@@ -409,7 +352,6 @@ shinyServer(function(input, output, session) {
   verhaeltnis_normal = reactive({
     ((normallade_max() - normallade_min())/(normallade_max() - normallade_min() + schnelllade_max() - schnelllade_min())*100)
   })
-  
   
   schnelllade_min = reactive({
     d <- allData %>%
@@ -471,12 +413,6 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  
-  text1 <- "Hallo"
-  #output$vbox <- renderValueBox(vb)
-  
-  
-  
   data = reactive({
     d = allData %>%
       filter(Bundesland == input$country, Ladeeinrichtung!=0) %>%
@@ -485,7 +421,6 @@ shinyServer(function(input, output, session) {
       group_by(Month, Ladeeinrichtung) %>%
       summarise(total=sum(Ladepunkte))
   })
-  
   
   #Analysen Ladesäule pro Bundesland (Schnell- und Langsam)
   countries = sort(unique(allData$Bundesland))[-1]
@@ -553,14 +488,7 @@ shinyServer(function(input, output, session) {
   output$text_2 <- renderText({ "Vorliegende Analyse zeigt sowohl die kumulierte als auch distinktive Entwicklung der Inebtrieb genommenen Ladeopunkte in den jeweiligen Bundesländern. Es wird außerdem unterschieden zwischen Schnell- und Normalladestationen. 
     Zudem werden die Kosten des Ladeinfrastrukturausbaus dynamisch angezeigt. Hierzu wird der Ladereport veröffentlich 2020 im Auftrag der EnBW Energie Baden-Württemberg AG hinzugezogen. "
   })
-  
-  #output$datahead <- renderTable({
-  #  data()
-  #})
-  
-  
- 
-  
+
   #-----------
   # Graphen zu Top 10 Städte Deutschland
   
@@ -574,56 +502,21 @@ shinyServer(function(input, output, session) {
       slice(1:10)
   })
   
-  #yform <- list(categoryorder = "array",
-  #             categoryarray = as.vector(data1()))
-  
-  
   year = sort(unique(allData$year))
-  
-  #my_list[names(my_list) != "b"]  
   
   updateSelectInput(session, "checkYear", choices=year[-1], selected="2020")
   
   output$barplot1 <- renderPlotly({
     plot_ly(data = data1(),y=~Ort,x=~total1, type="bar",  orientation = 'h' ) #%>% 
-    #layout(yaxis = yform)
   })
   
   output$datahead1 <- renderTable({
     data1()
   })
-  
-  
-  # -------------------------------------
-  # Forecast
-  
-  data_forecast = reactive({
-    d = allData %>%
-      filter(Bundesland == input$checkBundesland) %>%
-      group_by(year, Ladeeinrichtung) %>%
-      summarise(total=sum(Ladepunkte)) %>%
-      group_by(Ladeeinrichtung) %>%
-      mutate(total1 = cumsum(total))
-  })
-  
-  fcast_dates <- (1:6)
-  
-  countries = sort(unique(allData$Bundesland))[-1]
-  
-  updateSelectInput(session, "checkBundesland", choices=countries, selected="Baden-Württemberg")
-  
-  output$forecast <- renderPlotly({
-    plot_ly(data = data_forecast(),x=~year,y=~total1, name="Historical", 
-            type="scatter", mode = "lines", orientation = 'h' ) %>% 
-      add_trace(x=fcast_dates, y = forecast(auto.arima(~year),h=6), 
-                name="Forecast", dash="dot")
-    #layout(yaxis = yform)
-  })
-  
+
   
   # --------------------------------------------
   # Animation
-  # Preparation of data for animation of cities
   
   ladepunkte_aggr <- allData
   ladepunkte_aggr$year <- floor_date(ladepunkte_aggr$Inbetriebnahmedatum, "year")
@@ -644,14 +537,6 @@ shinyServer(function(input, output, session) {
     d = df_merged %>%
       filter(Jahr %in% input$jahr_zulassungen)
   })
-  
-  #fit1 <- lm(total ~ Elektro, data = data_merged())
-  
-  #jahre = sort(unique(df_merged$year))[-1]
-  
-  #updateSelectInput(session, "jahr_zulassungen", choices=jahre)
-  
- 
   
   output$zulassungen_plot <- renderPlotly({
     
@@ -675,221 +560,7 @@ shinyServer(function(input, output, session) {
   output$text_22 <- renderText({ "Mithilfe der Regressionsanalyse lässt es sich veranschaulichen, wie gut sich die Werte einer Variable mit den Werten einer anderen Variablen vorhersagen lassen. Außerdem hilft die Analyse dabei,
     die Zusamenhänge der beiden Variablen zu  beschreiben. In vorliegendem Fall wird mithilfe der neu in Betrieb genommenen Ladepunkte die Zulassungen der Elektrofahrzeuge vorhergesagt bzw. Zusammenhänge erkannt. Zur Auswahl stehen die Jahre 2017 - 2019. Für diese Jahre stellt das Kraftfahrtbundesamt die öffentlich zugänglichen Daten zur Verfügung."
   })
-  
-  #output$zulassungen_plot <- renderPlotly({
-  #  plot_ly(data = df_merged, x = ~total, y = ~Elektro, type = "scatter", color= ~year, abline) +
-  #  abline(lm(total ~ Elektro))
-  #})
-  
-  
-  data2 <- allData %>%
-    filter(year > 2010) %>%
-    group_by(year, Ort) %>%
-    summarise(total1 = sum(Ladepunkte)) %>%
-    arrange(desc(total1))
-  
-  data2 <- data2 %>% 
-    group_by(Ort) %>%
-    arrange(year) %>%
-    mutate(total2 = cumsum(total1)) %>%
-    group_by(year) %>%
-    arrange(desc(total2)) %>%
-    slice(1:10)
-           
-  
-  data2a <- data2 %>%
-    # The * 1 makes it possible to have non-integer ranks while sliding
-    mutate(rank = rank(-total2),
-           Value_rel = total2/total2[rank==1],
-           Value_lbl = paste("",total2)) %>%
-    group_by(Ort) %>%
-    filter(rank <=10) 
-  
-  data3 <- allData %>%
-    filter(year > 2010) %>%
-    group_by(year, Bundesland) %>%
-    summarise(total1 = sum(Ladepunkte)) %>%
-    arrange(desc(total1))
-  
-  data3 <- data3 %>% 
-    group_by(Bundesland) %>%
-    arrange(year) %>%
-    mutate(total2 = cumsum(total1)) %>%
-    group_by(year) %>%
-    arrange(desc(total2)) %>%
-    slice(1:10)
 
-  
-  data3a <- data3 %>%
-    # The * 1 makes it possible to have non-integer ranks while sliding
-    mutate(rank = rank(-total2),
-           Value_rel = total2/total2[rank==1],
-           Value_lbl = paste("",total2)) %>%
-    group_by(Bundesland) %>%
-    filter(rank <=10)
-  
-  
-  updateSelectInput(session, "animation_option", choices=list_choices, selected="Top 10 Städte")
-  
-  animation_option <- eventReactive(input$run_button,input$animation_option)
-  
-  output$animatedplot <- renderImage({
-    
-    if ( input$animation_option == "Top 10 Städte") { 
-      return(list(
-        src = "www/images/gif1/top_staedte.gif",
-        contentType = "image/gif",
-        width = 590,
-        height = 400,
-        alt = "Ranking der besten 10 Städte"
-      ))
-    } else if (input$animation_option == "Top 10 Bundesländer") {
-      return(list(
-        src = "www/images/gif1/top_bundeslaender.gif",
-        filetype = "image/gif",
-        width = 590,
-        height = 400,
-        alt = "Ranking der besten 10 Bundesländer"
-      ))
-    } else if (input$animation_option == "Top 10 Bundesländer") {
-      return(list(
-        src = "www/images/gif1/top_bundeslaender.gif",
-        filetype = "image/gif",
-        width = 590,
-        height = 400,
-        alt = "Ranking der besten 10 Bundesländer"
-      ))
-    } else if (input$animation_option == "Top 10 Bundesländer") {
-      return(list(
-        src = "www/images/gif1/top_bundeslaender.gif",
-        filetype = "image/gif",
-        width = 590,
-        height = 400,
-        alt = "Ranking der besten 10 Bundesländer"
-      ))
-    }
-    
-  }, deleteFile = FALSE)
-  
-
-  observeEvent(input$run_button,{
-    
-    if (input$animation_option == "Top 10 Städte") {
-      
-      output$animatedplot <- renderImage({
-         
-
-        # A temp file to save the output.
-        # This file will be removed later by renderImage
-        outfile <- tempfile(fileext=".gif")
-        
-        # now make the animation
-        p = ggplot(data2a, aes(rank, group = Ort, 
-                               fill = as.factor(Ort), color = as.factor(Ort))) +
-          geom_tile(aes(y = total2/2,
-                        height = total2,
-                        width = 0.9), alpha = 0.8, color = NA) +
-          geom_text(aes(y = 0, label = paste(Ort, " ")), vjust = 0.2, hjust = 1) +
-          geom_text(aes(y=total2,label = Value_lbl, hjust=0)) +
-          coord_flip(clip = "off", expand = FALSE) +
-          scale_y_continuous(labels = scales::comma) +
-          scale_x_reverse() +
-          guides(color = "none", fill = "none") +
-          theme(axis.line=element_blank(),
-                axis.text.x=element_blank(),
-                axis.text.y=element_blank(),
-                axis.ticks=element_blank(),
-                axis.title.x=element_blank(),
-                axis.title.y=element_blank(),
-                legend.position="none",
-                panel.background=element_blank(),
-                panel.border=element_blank(),
-                panel.grid.major=element_blank(),
-                panel.grid.minor=element_blank(),
-                panel.grid.major.x = element_line( size=.1, color="grey" ),
-                panel.grid.minor.x = element_line( size=.1, color="grey" ),
-                plot.title=element_text(size=20, hjust=0.5, face="bold", colour="grey", vjust=-1),
-                plot.subtitle=element_text(size=13, hjust=0.5, face="italic", color="grey", vjust=-1),
-                plot.caption =element_text(size=11, hjust=0.5, face="italic", color="grey"),
-                plot.background=element_blank(),
-                plot.margin = margin(2,2, 2, 4, "cm")) +
-          transition_states(year, transition_length = 5, state_length = 5, wrap = FALSE) +
-          view_follow(fixed_x = TRUE)  +
-          labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-               subtitle  =  " ",
-               caption  = "Anzahl der Ladepunkte (summiert)")
-        
-        anim_save("outfile.gif", animate(p, 200, fps = 20, width=600, height = 420, 
-                                         renderer = gifski_renderer("gganimate.gif"))) # New
-        
-        # Return a list containing the filename
-        list(src = "outfile.gif",
-             contentType = 'image/gif'
-             #width = 400,
-             #height = 800
-             # alt = "This is alternate text"
-        )}, deleteFile = TRUE)
-    
-      
-    }
-    else {
-      output$animatedplot <- renderImage({
-
-        # A temp file to save the output.
-        # This file will be removed later by renderImage
-        outfile <- tempfile(fileext=".gif")
-        
-        # now make the animation
-        p = ggplot(data3a, aes(rank, group = Bundesland, 
-                               fill = as.factor(Bundesland), color = as.factor(Bundesland))) +
-          geom_tile(aes(y = total2/2,
-                        height = total2,
-                        width = 0.9), alpha = 0.8, color = NA) +
-          geom_text(aes(y = 0, label = paste(Bundesland, " ")), vjust = 0.2, hjust = 1) +
-          geom_text(aes(y=total2,label = Value_lbl, hjust=0)) +
-          coord_flip(clip = "off", expand = FALSE) +
-          scale_y_continuous(labels = scales::comma) +
-          scale_x_reverse() +
-          guides(color = "none", fill = "none") +
-          theme(axis.line=element_blank(),
-                axis.text.x=element_blank(),
-                axis.text.y=element_blank(),
-                axis.ticks=element_blank(),
-                axis.title.x=element_blank(),
-                axis.title.y=element_blank(),
-                legend.position="none",
-                panel.background=element_blank(),
-                panel.border=element_blank(),
-                panel.grid.major=element_blank(),
-                panel.grid.minor=element_blank(),
-                panel.grid.major.x = element_line( size=.1, color="grey" ),
-                panel.grid.minor.x = element_line( size=.1, color="grey" ),
-                plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
-                plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
-                plot.caption =element_text(size=11, hjust=0.5, face="italic", color="grey"),
-                plot.background=element_blank(),
-                plot.margin = margin(2,2, 2, 4, "cm")) +
-          transition_states(year, transition_length = 5, state_length = 5, wrap = FALSE) +
-          view_follow(fixed_x = TRUE)  +
-          labs(title = 'Ladepunkte pro Jahr : {closest_state}',  
-               subtitle  =  " ",
-               caption  = "Anzahl der Ladepunkte (summiert)")
-        
-        anim_save("outfile.gif", animate(p, 200, fps = 20, width=600, height = 420, 
-                                         renderer = gifski_renderer("gganimate.gif"))) # New
-        
-        # Return a list containing the filename
-        list(src = "outfile.gif",
-             contentType = 'image/gif'
-             # width = 400,
-             # height = 300,
-             # alt = "This is alternate text"
-        )}, 
-        deleteFile = FALSE) 
-    
-    }
-  })
-  
   #-----------------------
   #Animierte Zeitleiste
   
